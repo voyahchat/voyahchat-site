@@ -1,0 +1,141 @@
+# Nginx configuration for flat file structure with pre-compressed files
+worker_processes auto;
+pid /tmp/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /opt/homebrew/etc/nginx/mime.types;
+
+    # Map Accept-Encoding to compression directory
+    map $http_accept_encoding $compression_dir {
+        default         "";
+        "~*\bbr\b"      "brotli/";
+        "~*\bgzip\b"    "gzip/";
+    }
+
+    # Map compression directory to file suffix and Content-Encoding header
+    map $compression_dir $compression_suffix {
+        default         "";
+        "brotli/"       ".br";
+        "gzip/"         ".gz";
+    }
+
+    map $compression_dir $content_encoding {
+        default         "";
+        "brotli/"       "br";
+        "gzip/"         "gzip";
+    }
+
+    # Convert URL to flat filename: /free/12v -> free_12v.html
+    map $uri $flat_html {
+        default                                        "";
+        "~^/$"                                         "index.html";
+        "~^/([^/]+)$"                                  "$1.html";
+        "~^/([^/]+)/([^/]+)$"                          "$1_$2.html";
+        "~^/([^/]+)/([^/]+)/([^/]+)$"                  "$1_$2_$3.html";
+        "~^/([^/]+)/([^/]+)/([^/]+)/([^/]+)$"          "$1_$2_$3_$4.html";
+        "~^/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$"  "$1_$2_$3_$4_$5.html";
+    }
+
+    # Detect hashed static files for cache control
+    map $uri $is_hashed_static {
+        default                                 0;
+        ~*\.(css|js|svg|jpg|jpeg|png|gif|ico)$  1;
+    }
+
+    map $is_hashed_static $expires_time {
+        0   1h;     # HTML, PDF, ZIP
+        1   1y;     # Hashed assets
+    }
+
+    map $is_hashed_static $cache_control {
+        0   "public, no-cache";
+        1   "public, immutable";
+    }
+
+    # Temporary directories
+    client_body_temp_path /tmp/nginx_client_temp;
+    proxy_temp_path /tmp/nginx_proxy_temp;
+    fastcgi_temp_path /tmp/nginx_fastcgi_temp;
+    uwsgi_temp_path /tmp/nginx_uwsgi_temp;
+    scgi_temp_path /tmp/nginx_scgi_temp;
+
+    server {
+        listen 8080;
+        server_name localhost;
+
+        access_log /tmp/nginx-logs/voyahchat_access.log;
+        error_log /tmp/nginx-logs/voyahchat_error.log;
+
+        root {{ROOT}}/site;
+        index index.html;
+        error_page 404 /404.html;
+
+        # Block direct access to compression directories (must be before trailing slash removal)
+        location ~ ^/(brotli|gzip) {
+            return 404;
+        }
+
+        # Remove trailing slashes
+        location ~ ^(.+)/$ {
+            return 301 $1;
+        }
+
+{# Macro for compression logic and common headers #}
+{%- macro compressionLogic(targetFile) -%}
+            set $file_path "";
+            set $encoding_header "";
+
+            if (-f $document_root/$compression_dir{{ targetFile }}$compression_suffix) {
+                set $file_path /$compression_dir{{ targetFile }}$compression_suffix;
+                set $encoding_header $content_encoding;
+            }
+
+            if ($file_path = "") {
+                set $file_path /{{ targetFile }};
+            }
+
+            rewrite ^ $file_path break;
+
+            expires $expires_time;
+            add_header Cache-Control $cache_control;
+            add_header Vary "Accept-Encoding" always;
+            add_header Content-Encoding $encoding_header always;
+{%- endmacro -%}
+
+{% set staticTypes = [
+    { ext: 'css', mime: 'text/css' },
+    { ext: 'js',  mime: 'application/javascript' },
+    { ext: 'svg', mime: 'image/svg+xml' },
+    { ext: 'xml', mime: 'application/xml' }
+] %}
+{%- for type in staticTypes %}
+        # {{ type.ext | upper }} files with pre-compression
+        location ~* \.{{ type.ext }}$ {
+{{ compressionLogic('$uri') }}
+            default_type {{ type.mime }};
+        }
+{%- endfor %}
+
+        # HTML pages with pre-compression support
+        location / {
+{{ compressionLogic('$flat_html') }}
+            default_type text/html;
+            charset utf-8;
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        }
+
+        # Non-compressible files (images, PDF, ZIP)
+        location ~* \.(jpg|jpeg|png|gif|ico|pdf|zip)$ {
+            try_files $uri =404;
+
+            expires $expires_time;
+            add_header Cache-Control $cache_control;
+        }
+    }
+}

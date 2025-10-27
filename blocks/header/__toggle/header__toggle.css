@@ -1,0 +1,66 @@
+.header__toggle
+{
+    cursor: pointer;
+}
+
+.header__toggle-line,
+.header__toggle-line::before,
+.header__toggle-line::after
+{
+    position: absolute;
+    left: 50%;
+
+    width: 2rem;
+    height: 0.15rem;
+
+    content: '';
+    cursor: pointer;
+
+    border-radius: 1px;
+    background: rgba(255, 255, 255, 0.65);
+
+    transition: all 0.3s ease-in-out;
+    transform: translateX(-50%);
+}
+
+.header__toggle:hover .header__toggle-line,
+.header__toggle:hover .header__toggle-line::before,
+.header__toggle:hover .header__toggle-line::after
+{
+    background: #fff;
+}
+
+.header__toggle-line::before
+{
+    top: -0.65rem;
+}
+
+.header__toggle-line::after
+{
+    bottom: -0.65rem;
+}
+
+.page__menu-switcher:checked ~ .page__head .header__toggle
+{
+    background: #052433;
+}
+
+.page__menu-switcher:checked ~ .page__head .header__toggle .header__toggle-line,
+.page__menu-switcher:checked ~ .page__head .header__toggle:hover .header__toggle-line
+{
+    background-color: transparent;
+}
+
+.page__menu-switcher:checked ~ .page__head .header__toggle .header__toggle-line::before
+{
+    top: 0;
+
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.page__menu-switcher:checked ~ .page__head .header__toggle .header__toggle-line::after
+{
+    bottom: 0;
+
+    transform: translateX(-50%) rotate(-45deg);
+}

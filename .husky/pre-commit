@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# AGENTS.md: Run linter before commits
+npm run lint
+
+# AGENTS.md: Run tests
+npm test
+
+# Check for console.log in production code (excluding comments)
+#if git diff --cached --name-only | grep -E '\.(js|mjs)$' | xargs -r grep -n 'console\.log' 2>/dev/null | grep -v 'test\.js' | grep -v '//.*console\.log' | grep -v '\*.*console\.log'; then
+#    echo "Error: console.log found in production code"
+#    exit 1
+#fi
+

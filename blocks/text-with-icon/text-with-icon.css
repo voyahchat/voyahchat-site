@@ -1,0 +1,9 @@
+.text-with-icon {
+    display: flex;
+}
+
+.text-with-icon__icon {
+    align-self: center;
+
+    margin: 0 0.8rem 0 0;
+}

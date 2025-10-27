@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<title>{{ page.title }}</title>
+<link rel="stylesheet" href="{{ page.css }}">
+<link rel="icon" type="image/svg" href="{{ page.favicon }}">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta property="og:url" content="https://voyahchat.ru">
+
+<body class="page page-index">
+
+<ul class='nav-index'>
+    <li class='nav-index__item nav-index__item_type_common'>
+        <a class='nav-index__link nav-index__link_type_common link-nav' href='common'>Общее</a>
+    </li>
+    <li class='nav-index__item nav-index__item_type_free'>
+        <a class='nav-index__link nav-index__link_type_free link-nav' href='free'>Free</a>
+    </li>
+    <li class='nav-index__item nav-index__item_type_dreamer'>
+        <a class='nav-index__link nav-index__link_type_dreamer link-nav' href='dreamer'>Dreamer</a>
+    </li>
+    <li class='nav-index__item nav-index__item_type_passion'>
+        <a class='nav-index__link nav-index__link_type_passion link-nav' href='passion'>Passion</a>
+    </li>
+    <li class='nav-index__item'>
+        {% include 'blocks/footer/footer.njk' %}
+    </li>
+</ul>

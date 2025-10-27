@@ -1,0 +1,13 @@
+.app-screenshot {
+    width: calc(100% + 1.5rem);
+    max-width: 480px;
+    max-height: 950px;
+    margin: 1rem 0 1rem -1.5rem;
+}
+
+@media (min-width: 1000px) {
+    .app-screenshot {
+        width: 480px;
+        margin-left: 0;
+    }
+}

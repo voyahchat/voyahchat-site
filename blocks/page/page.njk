@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<title>{{ page.title }}</title>
+<link rel="stylesheet" href="{{ page.css }}">
+<link rel="icon" type="image/svg" href="{{ page.favicon }}">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta property="og:url" content="https://voyahchat.ru{{ page.url }}">
+<meta property="og:type" content="article">
+
+<body class="page">
+    {% include "blocks/header/header.njk" %}
+
+    {% include "blocks/menu/menu.njk" %}
+
+    <div class="page__main">
+        <div class="article page__content">
+            {{ content }}
+        </div>
+
+        {% include "blocks/footer/footer.njk" %}
+    </div>
+
+    <div class="page__side">
+        {% include "blocks/aside/aside.njk" %}
+    </div>
+
+    <script src="//yandex.ru/ads/system/context.js" async></script>
+    <script src="{{ page.js }}"></script>

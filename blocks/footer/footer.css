@@ -1,0 +1,24 @@
+.footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    height: 6rem;
+
+    font-size: 200%;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.footer__tg {
+    text-decoration: none;
+
+    color: inherit;
+}
+
+.footer__tg-icon {
+    position: relative;
+    top: .3ex;
+
+    height: 1.7ex;
+}

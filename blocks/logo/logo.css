@@ -1,0 +1,21 @@
+.logo {
+    align-self: center;
+
+    width: max(40px, min(10vw, 90px));
+}
+
+.logo__logo {
+    --l: url('./logo.svg');
+
+    width: max(18px, min(3vw, 36px));
+    height: max(25px, min(4vw, 50px));
+
+    background: var(--color-nav);
+    mask: var(--l) no-repeat center;
+
+    transition: background 0.3s ease-in-out;
+}
+
+.logo:hover .logo__logo {
+    background: var(--color-nav-hover);
+}

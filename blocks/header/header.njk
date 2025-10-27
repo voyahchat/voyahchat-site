@@ -1,0 +1,27 @@
+<input class="page__menu-switcher" type=checkbox id=burger>
+
+<div class="header page__head">
+    <a class="logo header__logo" href="/">
+        {% include "blocks/logo/logo.njk" %}
+    </a>
+
+    <ol class="header__title">
+        {%- if page.breadcrumbs and page.breadcrumbs.length > 0 -%}
+            {%- for breadcrumbUrl in page.breadcrumbs -%}
+                {%- set breadcrumbPage = sitemap.pages[breadcrumbUrl] -%}
+                {%- if breadcrumbPage -%}
+                    <li class="header__title-item">
+                        <a class="header__title-link link link-nav" href="{{ breadcrumbUrl }}">{{ breadcrumbPage.name }}</a>
+                    </li>
+                {%- endif -%}
+            {%- endfor -%}
+        {%- endif -%}
+        <li class="header__title-item header__title-item_current">
+            {{ page.name }}
+        </li>
+    </ol>
+
+    <label class="page__menu-burger header__toggle" for=burger>
+        <span class="header__toggle-line"></span>
+    </label>
+</div>

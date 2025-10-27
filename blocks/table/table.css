@@ -1,0 +1,24 @@
+.article__table {
+    width: auto;
+
+    font-size: 70%;
+    hyphens: auto;
+
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.article__table-cell {
+    padding: 0.4rem 0.4rem;
+
+    border: 1px solid #ddd;
+}
+
+.article__table-cell_header,
+.article__table-row .article__table-cell:first-of-type {
+    background: #eee;
+}
+
+.article__table-row:hover .article__table-cell {
+    background: #ddd;
+}

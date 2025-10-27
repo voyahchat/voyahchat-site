@@ -1,0 +1,9 @@
+.link-nav {
+    color: var(--color-nav);
+
+    transition: color var(--transition);
+}
+
+.link-nav:hover {
+    color: var(--color-nav-hover);
+}

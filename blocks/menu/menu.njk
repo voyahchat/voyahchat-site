@@ -1,0 +1,115 @@
+{#
+Optimized Navigation Menu Component
+===================================
+
+This component uses the new optimized sitemap structure for much simpler menu generation.
+It directly uses the sitemap array to build hierarchical menus with minimal logic.
+
+Features:
+- Direct sitemap traversal (no complex filtering needed)
+- Automatic hierarchy from sitemap structure
+- Active state highlighting
+- Collapsible subsections based on current page location
+#}
+
+{# Get current page URL and navigation data #}
+{% set pageUrl = page.url %}
+{% set currentSection = page.section or 'root' %}
+
+{# Skip menu for root pages #}
+{% if currentSection == 'root' %}
+    <!-- No menu for root pages -->
+{% else %}
+
+{# Function to render menu items recursively #}
+{% macro renderMenuItem(item, currentUrl, level = 0) %}
+    {% if item is string %}
+        {# Simple URL item #}
+        {% set pageData = sitemap.pages[item] %}
+        {% if pageData %}
+            {% set isCurrentPage = (helpers.cleanUrl(currentUrl) == helpers.cleanUrl(item)) %}
+            {% if isCurrentPage %}
+                {% set itemClasses = '"menu__item menu__item_current"' %}
+            {% else %}
+                {% set itemClasses = '"menu__item"' %}
+            {% endif %}
+
+            <li class={{ itemClasses }}>
+                {% if isCurrentPage %}
+                    <span class="menu__link menu__link_current">{{ pageData.name }}</span>
+                {% else %}
+                    <a class="menu__link link-nav" href="{{ helpers.cleanUrl(item) }}">{{ pageData.name }}</a>
+                {% endif %}
+            </li>
+        {% endif %}
+    {% else %}
+        {# Object with children #}
+        {% for parentUrl, children in item %}
+            {% set pageData = sitemap.pages[parentUrl] %}
+            {% if pageData %}
+                {% set isCurrentPage = (helpers.cleanUrl(currentUrl) == helpers.cleanUrl(parentUrl)) %}
+                {% set isInSubsection = (helpers.cleanUrl(currentUrl).startsWith(helpers.cleanUrl(parentUrl) + '/')) %}
+                {% set shouldExpand = (isCurrentPage or isInSubsection) %}
+
+                {% if isCurrentPage %}
+                    {% set itemClasses = '"menu__item menu__item_current"' %}
+                {% elif isInSubsection %}
+                    {% set itemClasses = '"menu__item menu__item_expanded"' %}
+                {% else %}
+                    {% set itemClasses = '"menu__item"' %}
+                {% endif %}
+
+                <li class={{ itemClasses }}>
+                    {% if isCurrentPage %}
+                        <span class="menu__link menu__link_current">{{ pageData.name }}</span>
+                    {% else %}
+                        <a class="menu__link link link-nav" href="{{ helpers.cleanUrl(parentUrl) }}">{{ pageData.name }}</a>
+                    {% endif %}
+
+                    {# Show children if we're in this subsection #}
+                    {% if shouldExpand and children and children.length > 0 %}
+                        <ul class="menu__submenu">
+                            {% for child in children %}
+                                {{ renderMenuItem(child, currentUrl, level + 1) }}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endmacro %}
+
+{# Find the current section in sitemap and render its menu #}
+{% if sitemap and sitemap.sitemap %}
+    {% set sectionFound = false %}
+    {% for item in sitemap.sitemap %}
+        {% if not sectionFound %}
+            {% if item is not string %}
+                {# Check if this is our current section (with children) #}
+                {% for sectionUrl, sectionChildren in item %}
+                    {% if not sectionFound and sectionUrl == ('/' + currentSection) %}
+                        {% set sectionFound = true %}
+                        <div class="page__menu">
+                            <ul class="menu">
+                                {% for child in sectionChildren %}
+                                    {{ renderMenuItem(child, pageUrl) }}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {# Check if this is our current section (without children) #}
+                {% if not sectionFound and item == ('/' + currentSection) %}
+                    {% set sectionFound = true %}
+                    {# Section with no children - render empty menu container #}
+                    <div class="page__menu">
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% endif %}

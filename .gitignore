@@ -1,0 +1,7 @@
+.assets
+.build
+external
+site
+
+node_modules
+.vscode

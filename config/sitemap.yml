@@ -53,6 +53,8 @@ sitemap:
       - TelegramX [telegram, common/software_telegram.md]
       - YouTube [youtube, common/software_youtube.md]
       - HUD Speed [hudspeed, common/software_hudspeed.md]
+      - Yandex Navigator [yandex-navi, common/software_yandex-navi.md]
+      - Yandex Music [yandex-music, common/software_yandex-music.md]
       - Yandex Navigator NXP [yandex-navi-nxp, common/software_yandex-navi-nxp.md]
       - Yandex Music NXP [yandex-music-nxp, common/software_yandex-music-nxp.md]
       - DNS [dns, common/software_dns.md]

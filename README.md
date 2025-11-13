@@ -20,7 +20,7 @@ npm run benchmark # Performance benchmarking
 - External repositories for modular content and layout blocks
 - Modular NPM build system with parallel execution
 - Template optimization before HTML generation
-- Pre-compressed gzip and brotli files for production
+- Pre-compressed gzip, brotli, and zstd files for production
 
 ## Build Pipeline
 
@@ -116,7 +116,7 @@ Core configuration files:
 ├── lib/                         # Core build utilities and tests
 │   ├── build/                   # Build step scripts
 │   │   ├── build-assets.js      # Asset copying and processing
-│   │   ├── build-compression.js # Gzip/brotli compression
+│   │   ├── build-compression.js # Gzip/brotli/zstd compression
 │   │   ├── build-css.js         # CSS processing and hashing
 │   │   ├── build-html.js        # HTML site generation
 │   │   ├── build-images.js      # Image copying and hashing
@@ -746,7 +746,7 @@ All build scripts generate statistics files in `.build/` directory using a unifi
 - `.build/build-images.json` - Image files with content hashes
 - `.build/build-nav.json` - Navigation structure and sitemap.xml
 - `.build/build-templates.json` - Optimized templates with size reduction stats
-- `.build/build-compression.json` - Compressed files (gzip and brotli)
+- `.build/build-compression.json` - Compressed files (gzip, brotli, and zstd)
 - `.build/build-html.json` - Generated HTML files with URLs
 
 Each file entry contains `source`, `size`, and script-specific `metadata`. Build-level metadata includes generation timestamp.

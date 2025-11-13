@@ -24,6 +24,7 @@
     "benchmark": "node lib/build/benchmark.js"
   },
   "dependencies": {
+    "@mongodb-js/zstd": "^7.0.0",
     "autoprefixer": "^10.4.16",
     "ava": "^6.4.1",
     "concurrently": "^9.2.1",

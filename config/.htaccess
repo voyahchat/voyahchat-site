@@ -58,6 +58,11 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} ^(.+)/$
 RewriteRule ^(.+)/$ /$1 [R=301,L]
 
+# Root URL with Zstd support (highest priority)
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/index.html.zst -f
+RewriteRule ^$ zstd/index.html.zst [L]
+
 # Root URL with Brotli support
 RewriteCond %{HTTP:Accept-Encoding} br
 RewriteCond %{DOCUMENT_ROOT}/brotli/index.html.br -f
@@ -71,6 +76,11 @@ RewriteRule ^$ gzip/index.html.gz [L]
 # Root URL
 RewriteCond %{DOCUMENT_ROOT}/index.html -f
 RewriteRule ^$ index.html [L]
+
+# Single-level: /free → free.html (Zstd)
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/$1.html.zst -f
+RewriteRule ^([^/]+)$ zstd/$1.html.zst [L]
 
 # Single-level: /free → free.html (Brotli)
 RewriteCond %{HTTP:Accept-Encoding} br
@@ -86,6 +96,11 @@ RewriteRule ^([^/]+)$ gzip/$1.html.gz [L]
 RewriteCond %{DOCUMENT_ROOT}/$1.html -f
 RewriteRule ^([^/]+)$ $1.html [L]
 
+# Two-level: /free/models → free_models.html (Zstd)
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/$1_$2.html.zst -f
+RewriteRule ^([^/]+)/([^/]+)$ zstd/$1_$2.html.zst [L]
+
 # Two-level: /free/models → free_models.html (Brotli)
 RewriteCond %{HTTP:Accept-Encoding} br
 RewriteCond %{DOCUMENT_ROOT}/brotli/$1_$2.html.br -f
@@ -99,6 +114,11 @@ RewriteRule ^([^/]+)/([^/]+)$ gzip/$1_$2.html.gz [L]
 # Two-level: /free/models → free_models.html
 RewriteCond %{DOCUMENT_ROOT}/$1_$2.html -f
 RewriteRule ^([^/]+)/([^/]+)$ $1_$2.html [L]
+
+# Three-level: /common/firmware/update → common_firmware_update.html (Zstd)
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/$1_$2_$3.html.zst -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ zstd/$1_$2_$3.html.zst [L]
 
 # Three-level: /common/firmware/update → common_firmware_update.html (Brotli)
 RewriteCond %{HTTP:Accept-Encoding} br
@@ -114,6 +134,11 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ gzip/$1_$2_$3.html.gz [L]
 RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3.html [L]
 
+# Four-level: /common/firmware/update/paid → common_firmware_update_paid.html (Zstd)
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/$1_$2_$3_$4.html.zst -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ zstd/$1_$2_$3_$4.html.zst [L]
+
 # Four-level: /common/firmware/update/paid → common_firmware_update_paid.html (Brotli)
 RewriteCond %{HTTP:Accept-Encoding} br
 RewriteCond %{DOCUMENT_ROOT}/brotli/$1_$2_$3_$4.html.br -f
@@ -127,6 +152,11 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ gzip/$1_$2_$3_$4.html.gz [L]
 # Four-level: /common/firmware/update/paid → common_firmware_update_paid.html
 RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3_$4.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4.html [L]
+
+# Five-level: /a/b/c/d/e → a_b_c_d_e.html (Zstd)
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/$1_$2_$3_$4_$5.html.zst -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ zstd/$1_$2_$3_$4_$5.html.zst [L]
 
 # Five-level: /a/b/c/d/e → a_b_c_d_e.html (Brotli)
 RewriteCond %{HTTP:Accept-Encoding} br
@@ -142,6 +172,11 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ gzip/$1_$2_$3_$4_$5.html.g
 RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3_$4_$5.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L]
 
+# Static files with Zstd (CSS, JS, SVG, XML)
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/%{REQUEST_URI}.zst -f
+RewriteRule ^(.+\.(css|js|svg|xml))$ zstd/$1.zst [L]
+
 # Static files with Brotli (CSS, JS, SVG, XML)
 RewriteCond %{HTTP:Accept-Encoding} br
 RewriteCond %{DOCUMENT_ROOT}/brotli/%{REQUEST_URI}.br -f
@@ -155,6 +190,12 @@ RewriteRule ^(.+\.(css|js|svg|xml))$ gzip/$1.gz [L]
 </IfModule>
 
 <IfModule mod_headers.c>
+    # Zstd compressed files
+    <FilesMatch "\.(html|css|js|svg|xml)\.zst$">
+        Header set Content-Encoding "zstd"
+        Header set Vary "Accept-Encoding"
+    </FilesMatch>
+
     # Brotli compressed files
     <FilesMatch "\.(html|css|js|svg|xml)\.br$">
         Header set Content-Encoding "br"
@@ -167,24 +208,24 @@ RewriteRule ^(.+\.(css|js|svg|xml))$ gzip/$1.gz [L]
         Header set Vary "Accept-Encoding"
     </FilesMatch>
 
-    # Content-Type headers for specific file types (both compressed and uncompressed)
-    <FilesMatch "\.(html|htm)(\.br|\.gz)?$">
+    # Content-Type headers for specific file types (all compression formats)
+    <FilesMatch "\.(html|htm)(\.zst|\.br|\.gz)?$">
         Header set Content-Type "text/html;charset=utf-8"
     </FilesMatch>
 
-    <FilesMatch "\.css(\.br|\.gz)?$">
+    <FilesMatch "\.css(\.zst|\.br|\.gz)?$">
         Header set Content-Type "text/css;charset=utf-8"
     </FilesMatch>
 
-    <FilesMatch "\.js(\.br|\.gz)?$">
+    <FilesMatch "\.js(\.zst|\.br|\.gz)?$">
         Header set Content-Type "application/javascript;charset=utf-8"
     </FilesMatch>
 
-    <FilesMatch "\.svg(\.br|\.gz)?$">
+    <FilesMatch "\.svg(\.zst|\.br|\.gz)?$">
         Header set Content-Type "image/svg+xml;charset=utf-8"
     </FilesMatch>
 
-    <FilesMatch "\.xml(\.br|\.gz)?$">
+    <FilesMatch "\.xml(\.zst|\.br|\.gz)?$">
         Header set Content-Type "application/xml;charset=utf-8"
     </FilesMatch>
 </IfModule>

@@ -1,4 +1,14 @@
 # File redirects MUST come before directory redirects to avoid prefix matching conflicts
+Redirect 301 /free/models/voyah-free-ev-norway-otts.pdf /voyah-free-ev-norway-otts.pdf
+Redirect 301 /free/voyah-free-evr-2021-user-manual-rus.pdf /voyah-free-evr-2021-user-manual-rus.pdf
+Redirect 301 /free/voyah-free-evr-2023-user-manual-rus.pdf /voyah-free-evr-2023-user-manual-rus.pdf
+Redirect 301 /free/voyah-free-evr-2024-user-manual-rus.pdf /voyah-free-evr-2024-user-manual-rus.pdf
+Redirect 301 /free/voyah-free-evr-2024-user-manual-rus-alt.pdf /voyah-free-evr-2024-user-manual-rus-alt.pdf
+
+Redirect 301 /dreamer/voyah-dreamer-phev-2022-user-manual-rus.pdf /voyah-dreamer-phev-2022-user-manual-rus.pdf
+
+Redirect 301 /passion/voyah-passion-phev-2023-user-manual-rus.pdf /voyah-passion-phev-2023-user-manual-rus.pdf
+
 Redirect 301 /common/tweaks/install/voyahtweaks-2.1.0.zip /voyahtweaks-2.1.0.zip
 
 Redirect 301 /common/software/device-name/voyahchat-device-name.zip /voyahchat-device-name.zip
@@ -17,6 +27,7 @@ Redirect 301 /common/software/telegram/voyahchat-telegram.zip /voyahchat-telegra
 Redirect 301 /common/software/telegram/voyahchat-telegram-mac.zip /voyahchat-telegram-mac.zip
 Redirect 301 /common/software/yandex-navi-nxp/voyahchat-yandex-navi-nxp.zip /voyahchat-yandex-navi-nxp.zip
 Redirect 301 /common/software/yandex-navi-nxp/voyahchat-yandex-navi-nxp-mac.zip /voyahchat-yandex-navi-nxp-mac.zip
+Redirect 301 /common/tweaks/tweaks_install-nxp.zip /tweaks_install-nxp.zip
 
 # Directory redirects come after file redirects
 Redirect 301 /common/tweaks/install-mac /common/tweaks/install
@@ -43,35 +54,33 @@ RewriteRule ^(.*)#(.*)$ /$1#$2 [NE,R=301,L]
 RewriteCond %{THE_REQUEST} \.html
 RewriteRule .* - [R=404,L]
 
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^(.+)/$
+RewriteRule ^(.+)/$ /$1 [R=301,L]
+
 # Clean URL rewrites - pattern-based (handles all depth levels)
 # Root URL
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/index.html -f
 RewriteRule ^$ index.html [L]
 
 # Single-level: /free → free.html
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1.html -f
 RewriteRule ^([^/]+)$ $1.html [L]
 
 # Two-level: /free/models → free_models.html
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1_$2.html -f
 RewriteRule ^([^/]+)/([^/]+)$ $1_$2.html [L]
 
 # Three-level: /common/firmware/update → common_firmware_update.html
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3.html [L]
 
 # Four-level: /common/firmware/update/paid → common_firmware_update_paid.html
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3_$4.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4.html [L]
 
 # Five-level (if needed): /a/b/c/d/e → a_b_c_d_e.html
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3_$4_$5.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L]
 
 </IfModule>

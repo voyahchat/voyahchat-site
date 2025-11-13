@@ -1,0 +1,77 @@
+# File redirects MUST come before directory redirects to avoid prefix matching conflicts
+Redirect 301 /common/tweaks/install/voyahtweaks-2.1.0.zip /voyahtweaks-2.1.0.zip
+
+Redirect 301 /common/software/device-name/voyahchat-device-name.zip /voyahchat-device-name.zip
+Redirect 301 /common/software/device-name/voyahchat-device-name-mac.zip /voyahchat-device-name-mac.zip
+Redirect 301 /common/software/autokit/voyahchat-autokit.zip /voyahchat-autokit.zip
+Redirect 301 /common/software/autokit/voyahchat-autokit-mac.zip /voyahchat-autokit-mac.zip
+Redirect 301 /common/software/apkpure/voyahchat-apkpure.zip /voyahchat-apkpure.zip
+Redirect 301 /common/software/apkpure/voyahchat-apkpure-mac.zip /voyahchat-apkpure-mac.zip
+Redirect 301 /common/software/rustore/voyahchat-rustore.zip /voyahchat-rustore.zip
+Redirect 301 /common/software/rustore/voyahchat-rustore-mac.zip /voyahchat-rustore-mac.zip
+Redirect 301 /common/software/keyboard/voyahchat-keyboard-yandex.zip /voyahchat-keyboard-yandex.zip
+Redirect 301 /common/software/keyboard/voyahchat-keyboard-yandex-mac.zip /voyahchat-keyboard-yandex-mac.zip
+Redirect 301 /common/software/youtube/voyahchat-youtube.zip /voyahchat-youtube.zip
+Redirect 301 /common/software/youtube/voyahchat-youtube-mac.zip /voyahchat-youtube-mac.zip
+Redirect 301 /common/software/telegram/voyahchat-telegram.zip /voyahchat-telegram.zip
+Redirect 301 /common/software/telegram/voyahchat-telegram-mac.zip /voyahchat-telegram-mac.zip
+Redirect 301 /common/software/yandex-navi-nxp/voyahchat-yandex-navi-nxp.zip /voyahchat-yandex-navi-nxp.zip
+Redirect 301 /common/software/yandex-navi-nxp/voyahchat-yandex-navi-nxp-mac.zip /voyahchat-yandex-navi-nxp-mac.zip
+
+# Directory redirects come after file redirects
+Redirect 301 /common/tweaks/install-mac /common/tweaks/install
+Redirect 301 /common/tweaks/install-nxp-mac /common/tweaks/install-nxp
+Redirect 301 /common/software/autokit-mac /common/software/autokit
+Redirect 301 /common/software/apkpure-mac /common/software/apkpure
+Redirect 301 /common/software/rustore-mac /common/software/rustore
+Redirect 301 /common/software/yandex-navi-nxp-mac /common/software/yandex-navi-nxp
+
+Redirect 301 /free/choice /free/models
+
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+
+RewriteEngine On
+
+RewriteCond %{HTTP_HOST} voyahrussia.com
+RewriteRule (.*) https://voyahchat.ru/$1 [R=301,L]
+
+RewriteRule ^(.*)#(.*)$ /$1#$2 [NE,R=301,L]
+
+# Block direct access to .html files with 404
+RewriteCond %{THE_REQUEST} \.html
+RewriteRule .* - [R=404,L]
+
+# Clean URL rewrites - pattern-based (handles all depth levels)
+# Root URL
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^$ index.html [L]
+
+# Single-level: /free → free.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)$ $1.html [L]
+
+# Two-level: /free/models → free_models.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)/([^/]+)$ $1_$2.html [L]
+
+# Three-level: /common/firmware/update → common_firmware_update.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3.html [L]
+
+# Four-level: /common/firmware/update/paid → common_firmware_update_paid.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4.html [L]
+
+# Five-level (if needed): /a/b/c/d/e → a_b_c_d_e.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L]
+
+</IfModule>

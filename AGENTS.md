@@ -25,12 +25,8 @@
 3. `build:js`: Minify JavaScript
 4. `build:nav`: Generate navigation from `config/sitemap.yml`
 5. `build:images`: Copy images to `site/`
-6. `build:assets`: Copy assets (zip/pdf) to `site/`
+6. `build:assets`: Copy assets (zip/pdf) and config files to `site/`
 7. `build:templates`: Optimize Nunjucks templates to `.build/templates/`
-   - Removes Nunjucks comments, unnecessary quotes, optional closing tags
-   - Removes whitespace between tags while preserving template syntax
-   - Validates optimized templates parse correctly, falls back to original on error
-   - Achieves 21.8% average size reduction with zero runtime cost
 8. `build:html`: Build HTML content to `site/`
 9. `build:compression`: Compress assets in `site/`
 

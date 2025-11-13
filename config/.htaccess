@@ -58,29 +58,133 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} ^(.+)/$
 RewriteRule ^(.+)/$ /$1 [R=301,L]
 
-# Clean URL rewrites - pattern-based (handles all depth levels)
+# Root URL with Brotli support
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/index.html.br -f
+RewriteRule ^$ brotli/index.html.br [L]
+
+# Root URL with Gzip support
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/index.html.gz -f
+RewriteRule ^$ gzip/index.html.gz [L]
+
 # Root URL
 RewriteCond %{DOCUMENT_ROOT}/index.html -f
 RewriteRule ^$ index.html [L]
+
+# Single-level: /free → free.html (Brotli)
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/$1.html.br -f
+RewriteRule ^([^/]+)$ brotli/$1.html.br [L]
+
+# Single-level: /free → free.html (Gzip)
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/$1.html.gz -f
+RewriteRule ^([^/]+)$ gzip/$1.html.gz [L]
 
 # Single-level: /free → free.html
 RewriteCond %{DOCUMENT_ROOT}/$1.html -f
 RewriteRule ^([^/]+)$ $1.html [L]
 
+# Two-level: /free/models → free_models.html (Brotli)
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/$1_$2.html.br -f
+RewriteRule ^([^/]+)/([^/]+)$ brotli/$1_$2.html.br [L]
+
+# Two-level: /free/models → free_models.html (Gzip)
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/$1_$2.html.gz -f
+RewriteRule ^([^/]+)/([^/]+)$ gzip/$1_$2.html.gz [L]
+
 # Two-level: /free/models → free_models.html
 RewriteCond %{DOCUMENT_ROOT}/$1_$2.html -f
 RewriteRule ^([^/]+)/([^/]+)$ $1_$2.html [L]
+
+# Three-level: /common/firmware/update → common_firmware_update.html (Brotli)
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/$1_$2_$3.html.br -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ brotli/$1_$2_$3.html.br [L]
+
+# Three-level: /common/firmware/update → common_firmware_update.html (Gzip)
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/$1_$2_$3.html.gz -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ gzip/$1_$2_$3.html.gz [L]
 
 # Three-level: /common/firmware/update → common_firmware_update.html
 RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3.html [L]
 
+# Four-level: /common/firmware/update/paid → common_firmware_update_paid.html (Brotli)
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/$1_$2_$3_$4.html.br -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ brotli/$1_$2_$3_$4.html.br [L]
+
+# Four-level: /common/firmware/update/paid → common_firmware_update_paid.html (Gzip)
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/$1_$2_$3_$4.html.gz -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ gzip/$1_$2_$3_$4.html.gz [L]
+
 # Four-level: /common/firmware/update/paid → common_firmware_update_paid.html
 RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3_$4.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4.html [L]
+
+# Five-level: /a/b/c/d/e → a_b_c_d_e.html (Brotli)
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/$1_$2_$3_$4_$5.html.br -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ brotli/$1_$2_$3_$4_$5.html.br [L]
+
+# Five-level: /a/b/c/d/e → a_b_c_d_e.html (Gzip)
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/$1_$2_$3_$4_$5.html.gz -f
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ gzip/$1_$2_$3_$4_$5.html.gz [L]
 
 # Five-level (if needed): /a/b/c/d/e → a_b_c_d_e.html
 RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3_$4_$5.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L]
 
+# Static files with Brotli (CSS, JS, SVG, XML)
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/%{REQUEST_URI}.br -f
+RewriteRule ^(.+\.(css|js|svg|xml))$ brotli/$1.br [L]
+
+# Static files with Gzip (CSS, JS, SVG, XML)
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/%{REQUEST_URI}.gz -f
+RewriteRule ^(.+\.(css|js|svg|xml))$ gzip/$1.gz [L]
+
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Brotli compressed files
+    <FilesMatch "\.(html|css|js|svg|xml)\.br$">
+        Header set Content-Encoding "br"
+        Header set Vary "Accept-Encoding"
+    </FilesMatch>
+
+    # Gzip compressed files
+    <FilesMatch "\.(html|css|js|svg|xml)\.gz$">
+        Header set Content-Encoding "gzip"
+        Header set Vary "Accept-Encoding"
+    </FilesMatch>
+
+    # Content-Type headers for specific file types (both compressed and uncompressed)
+    <FilesMatch "\.(html|htm)(\.br|\.gz)?$">
+        Header set Content-Type "text/html;charset=utf-8"
+    </FilesMatch>
+
+    <FilesMatch "\.css(\.br|\.gz)?$">
+        Header set Content-Type "text/css;charset=utf-8"
+    </FilesMatch>
+
+    <FilesMatch "\.js(\.br|\.gz)?$">
+        Header set Content-Type "application/javascript;charset=utf-8"
+    </FilesMatch>
+
+    <FilesMatch "\.svg(\.br|\.gz)?$">
+        Header set Content-Type "image/svg+xml;charset=utf-8"
+    </FilesMatch>
+
+    <FilesMatch "\.xml(\.br|\.gz)?$">
+        Header set Content-Type "application/xml;charset=utf-8"
+    </FilesMatch>
 </IfModule>

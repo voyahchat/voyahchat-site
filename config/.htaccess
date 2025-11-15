@@ -322,6 +322,39 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L,E=I
     Header set Content-Type "image/svg+xml;charset=utf-8"
 </FilesMatch>
 
+# Image format Content-Type headers
+<FilesMatch "\.avif$">
+    Header set Content-Type "image/avif"
+</FilesMatch>
+
+<FilesMatch "\.webp$">
+    Header set Content-Type "image/webp"
+</FilesMatch>
+
+<FilesMatch "\.(png)$">
+    Header set Content-Type "image/png"
+</FilesMatch>
+
+<FilesMatch "\.(jpg|jpeg)$">
+    Header set Content-Type "image/jpeg"
+</FilesMatch>
+
+<FilesMatch "\.gif$">
+    Header set Content-Type "image/gif"
+</FilesMatch>
+
+<FilesMatch "\.ico$">
+    Header set Content-Type "image/x-icon"
+</FilesMatch>
+
+<FilesMatch "\.pdf$">
+    Header set Content-Type "application/pdf"
+</FilesMatch>
+
+<FilesMatch "\.zip$">
+    Header set Content-Type "application/zip"
+</FilesMatch>
+
 # Hash-prefixed image files (_i*)
 <FilesMatch "^_i[a-f0-9]+$">
     Header always set Cache-Control "public,immutable"
@@ -338,7 +371,7 @@ Header always set Referrer-Policy "strict-origin-when-cross-origin" env=IS_HTML
 Header always set Cache-Control "public,no-cache" env=IS_HTML
 
 # Hashed static files (CSS, JS, images) - immutable
-<FilesMatch "\.(css|js|svg|jpg|jpeg|png|gif|ico)(\.zst|\.br|\.gz)?$">
+<FilesMatch "\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp)(\.zst|\.br|\.gz)?$">
     Header always set Cache-Control "public,immutable"
 </FilesMatch>
 
@@ -355,7 +388,7 @@ Header always set Cache-Control "public,no-cache" env=IS_HTML
 ExpiresActive On
 
 # Hashed static files (CSS, JS, images) - 10 years
-<FilesMatch "\.(css|js|svg|jpg|jpeg|png|gif|ico)(\.zst|\.br|\.gz)?$">
+<FilesMatch "\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp)(\.zst|\.br|\.gz)?$">
     ExpiresDefault "access plus 10 years"
 </FilesMatch>
 

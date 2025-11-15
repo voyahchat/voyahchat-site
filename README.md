@@ -151,6 +151,52 @@ Core configuration files:
 └── README.md                    # Project documentation
 ```
 
+## Static Asset Naming Convention
+
+### Hash-Prefixed Files
+- CSS files: `_c{hash}` (e.g., `_c9008915a30a21706`)
+- JS files: `_j{hash}` (e.g., `_j904685a5dab014e8`)
+- Images: `_i{hash}` (e.g., `_i0e5f33c7435efacf`)
+
+### Image Format Priority
+When requesting `_i{hash}`, server serves best available format:
+1. AVIF (if available and browser supports)
+2. WebP (if available and browser supports)
+3. PNG/JPG (fallback to original format)
+
+### Compression
+CSS, JS and SVG files are automatically compressed:
+- Zstd (if better than brotli and browser supports)
+- Brotli (if available and browser supports)
+- Gzip (if available and browser supports)
+
+Server selects best compression based on Accept-Encoding header.
+
+### File Structure
+```
+site/
+├── _c{hash}              # CSS files (no extension)
+├── _j{hash}              # JS files (no extension)
+├── _i{hash}              # Image references (rewrite target)
+├── {hash}.png/jpg/svg    # Original images
+├── avif/
+│   └── {hash}.avif       # AVIF versions (if smaller than WEBP)
+├── webp/
+│   └── {hash}.webp       # WebP versions (if smaller than original)
+├── brotli/
+│   ├── _c{hash}.br       # Compressed CSS
+│   ├── _j{hash}.br       # Compressed JS
+│   └── *.html.br         # Compressed HTML
+├── gzip/
+│   ├── _c{hash}.gz
+│   ├── _j{hash}.gz
+│   └── *.html.gz
+└── zstd/
+    ├── _c{hash}.zst
+    ├── _j{hash}.zst
+    └── *.html.zst
+```
+
 ## Development
 
 ### Setup

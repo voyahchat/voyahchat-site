@@ -56,6 +56,85 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} ^(.+)/$
 RewriteRule ^(.+)/$ /$1 [R=301,L]
 
+# Hash-prefixed CSS files (_c*) with Zstd - highest priority
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/%{REQUEST_URI}.zst -f
+RewriteRule ^(_c[a-f0-9]+)$ zstd/$1.zst [L,E=COMPRESSION:zstd,E=IS_CSS:1]
+
+# Hash-prefixed CSS files (_c*) with Brotli - second priority
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/%{REQUEST_URI}.br -f
+RewriteRule ^(_c[a-f0-9]+)$ brotli/$1.br [L,E=COMPRESSION:br,E=IS_CSS:1]
+
+# Hash-prefixed CSS files (_c*) with Gzip - fallback
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/%{REQUEST_URI}.gz -f
+RewriteRule ^(_c[a-f0-9]+)$ gzip/$1.gz [L,E=COMPRESSION:gzip,E=IS_CSS:1]
+
+# Hash-prefixed CSS files (_c*) uncompressed
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} -f
+RewriteRule ^(_c[a-f0-9]+)$ $1 [L,E=COMPRESSION:none,E=IS_CSS:1]
+
+# Hash-prefixed JS files (_j*) with Zstd - highest priority
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/%{REQUEST_URI}.zst -f
+RewriteRule ^(_j[a-f0-9]+)$ zstd/$1.zst [L,E=COMPRESSION:zstd,E=IS_JS:1]
+
+# Hash-prefixed JS files (_j*) with Brotli - second priority
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/%{REQUEST_URI}.br -f
+RewriteRule ^(_j[a-f0-9]+)$ brotli/$1.br [L,E=COMPRESSION:br,E=IS_JS:1]
+
+# Hash-prefixed JS files (_j*) with Gzip - fallback
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/%{REQUEST_URI}.gz -f
+RewriteRule ^(_j[a-f0-9]+)$ gzip/$1.gz [L,E=COMPRESSION:gzip,E=IS_JS:1]
+
+# Hash-prefixed JS files (_j*) uncompressed
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} -f
+RewriteRule ^(_j[a-f0-9]+)$ $1 [L,E=COMPRESSION:none,E=IS_JS:1]
+
+# Hash-prefixed SVG files (_s*) with Zstd - highest priority
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/%{REQUEST_URI}.zst -f
+RewriteRule ^(_s[a-f0-9]+)$ zstd/$1.zst [L,E=COMPRESSION:zstd,E=IS_SVG:1]
+
+# Hash-prefixed SVG files (_s*) with Brotli - second priority
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/%{REQUEST_URI}.br -f
+RewriteRule ^(_s[a-f0-9]+)$ brotli/$1.br [L,E=COMPRESSION:br,E=IS_SVG:1]
+
+# Hash-prefixed SVG files (_s*) with Gzip - fallback
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/%{REQUEST_URI}.gz -f
+RewriteRule ^(_s[a-f0-9]+)$ gzip/$1.gz [L,E=COMPRESSION:gzip,E=IS_SVG:1]
+
+# Hash-prefixed SVG files (_s*) uncompressed
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} -f
+RewriteRule ^(_s[a-f0-9]+)$ $1 [L,E=COMPRESSION:none,E=IS_SVG:1]
+
+# Hash-prefixed images (_i*) with AVIF support - highest priority
+RewriteCond %{HTTP:Accept} image/avif
+RewriteCond %{DOCUMENT_ROOT}/avif/$1.avif -f
+RewriteRule ^_i([a-f0-9]+)$ avif/$1.avif [L,E=IS_IMAGE:1]
+
+# Hash-prefixed images (_i*) with WebP support - second priority
+RewriteCond %{HTTP:Accept} image/webp
+RewriteCond %{DOCUMENT_ROOT}/webp/$1.webp -f
+RewriteRule ^_i([a-f0-9]+)$ webp/$1.webp [L,E=IS_IMAGE:1]
+
+# Hash-prefixed images (_i*) fallback to PNG
+RewriteCond %{DOCUMENT_ROOT}/$1.png -f
+RewriteRule ^_i([a-f0-9]+)$ $1.png [L,E=IS_IMAGE:1]
+
+# Hash-prefixed images (_i*) fallback to JPG
+RewriteCond %{DOCUMENT_ROOT}/$1.jpg -f
+RewriteRule ^_i([a-f0-9]+)$ $1.jpg [L,E=IS_IMAGE:1]
+
+# Hash-prefixed images (_i*) fallback to SVG
+RewriteCond %{DOCUMENT_ROOT}/$1.svg -f
+RewriteRule ^_i([a-f0-9]+)$ $1.svg [L,E=IS_IMAGE:1]
+
 # Static files with Zstd (CSS, JS, SVG, XML) - highest priority
 RewriteCond %{HTTP:Accept-Encoding} zstd
 RewriteCond %{DOCUMENT_ROOT}/zstd/%{REQUEST_URI}.zst -f
@@ -189,20 +268,20 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ gzip/$1_$2_$3_$4_$5.html.g
 RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3_$4_$5.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L,E=IS_HTML:1]
 
-# Zstd compressed files
-<FilesMatch "\.(html|css|js|svg|xml)\.zst$">
+# Zstd compressed files (including hash-prefixed)
+<FilesMatch "(\.(html|css|js|svg|xml)|^_[cjs][a-f0-9]+)\.zst$">
     Header always set Content-Encoding "zstd"
     Header always set Vary "Accept-Encoding"
 </FilesMatch>
 
-# Brotli compressed files
-<FilesMatch "\.(html|css|js|svg|xml)\.br$">
+# Brotli compressed files (including hash-prefixed)
+<FilesMatch "(\.(html|css|js|svg|xml)|^_[cjs][a-f0-9]+)\.br$">
     Header always set Content-Encoding "br"
     Header always set Vary "Accept-Encoding"
 </FilesMatch>
 
-# Gzip compressed files
-<FilesMatch "\.(html|css|js|svg|xml)\.gz$">
+# Gzip compressed files (including hash-prefixed)
+<FilesMatch "(\.(html|css|js|svg|xml)|^_[cjs][a-f0-9]+)\.gz$">
     Header always set Content-Encoding "gzip"
     Header always set Vary "Accept-Encoding"
 </FilesMatch>
@@ -228,6 +307,27 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L,E=I
     Header set Content-Type "application/xml;charset=utf-8"
 </FilesMatch>
 
+# Hash-prefixed CSS files (_c*) - all compression formats
+<FilesMatch "^_c[a-f0-9]+(\.zst|\.br|\.gz)?$">
+    Header set Content-Type "text/css;charset=utf-8"
+</FilesMatch>
+
+# Hash-prefixed JS files (_j*) - all compression formats
+<FilesMatch "^_j[a-f0-9]+(\.zst|\.br|\.gz)?$">
+    Header set Content-Type "application/javascript;charset=utf-8"
+</FilesMatch>
+
+# Hash-prefixed SVG files (_s*) - all compression formats
+<FilesMatch "^_s[a-f0-9]+(\.zst|\.br|\.gz)?$">
+    Header set Content-Type "image/svg+xml;charset=utf-8"
+</FilesMatch>
+
+# Hash-prefixed image files (_i*)
+<FilesMatch "^_i[a-f0-9]+$">
+    Header always set Cache-Control "public,immutable"
+    Header always set Vary "Accept"
+</FilesMatch>
+
 # Security headers for HTML pages (clean URLs via IS_HTML env var)
 Header always set X-Frame-Options "SAMEORIGIN" env=IS_HTML
 Header always set X-Content-Type-Options "nosniff" env=IS_HTML
@@ -242,6 +342,11 @@ Header always set Cache-Control "public,no-cache" env=IS_HTML
     Header always set Cache-Control "public,immutable"
 </FilesMatch>
 
+# Hash-prefixed files (_c*, _j*, _s*, _i*) - immutable
+<FilesMatch "^_[cjsi][a-f0-9]+(\.zst|\.br|\.gz)?$">
+    Header always set Cache-Control "public,immutable"
+</FilesMatch>
+
 # PDF, ZIP, XML
 <FilesMatch "\.(pdf|zip|xml)(\.zst|\.br|\.gz)?$">
     Header always set Cache-Control "public,no-cache"
@@ -251,6 +356,11 @@ ExpiresActive On
 
 # Hashed static files (CSS, JS, images) - 10 years
 <FilesMatch "\.(css|js|svg|jpg|jpeg|png|gif|ico)(\.zst|\.br|\.gz)?$">
+    ExpiresDefault "access plus 10 years"
+</FilesMatch>
+
+# Hash-prefixed files (_c*, _j*, _s*, _i*) - 10 years
+<FilesMatch "^_[cjsi][a-f0-9]+(\.zst|\.br|\.gz)?$">
     ExpiresDefault "access plus 10 years"
 </FilesMatch>
 

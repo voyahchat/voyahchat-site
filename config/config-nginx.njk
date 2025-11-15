@@ -47,6 +47,7 @@ http {
     map $uri $is_hashed_static {
         default                                 0;
         ~*\.(css|js|svg|jpg|jpeg|png|gif|ico)$  1;
+        ~*^/_[cjs]                              1;
     }
 
     map $is_hashed_static $expires_time {
@@ -89,16 +90,22 @@ http {
 
 {# Macro for compression logic and common headers #}
 {%- macro compressionLogic(targetFile) -%}
+            set $target_file "{{ targetFile }}";
             set $file_path "";
             set $encoding_header "";
 
-            if (-f $document_root/$compression_dir{{ targetFile }}$compression_suffix) {
-                set $file_path /$compression_dir{{ targetFile }}$compression_suffix;
+            # Build compressed file path
+            set $check_file "${compression_dir}${target_file}${compression_suffix}";
+
+            # Check if compressed file exists
+            if (-f "$document_root/$check_file") {
+                set $file_path "/$check_file";
                 set $encoding_header $content_encoding;
             }
 
+            # Fall back to uncompressed
             if ($file_path = "") {
-                set $file_path /{{ targetFile }};
+                set $file_path "/$target_file";
             }
 
             rewrite ^ $file_path break;
@@ -118,14 +125,47 @@ http {
 {%- for type in staticTypes %}
         # {{ type.ext | upper }} files with pre-compression
         location ~* \.{{ type.ext }}$ {
-{{ compressionLogic('$uri') }}
+            {{ compressionLogic('$uri') }}
             default_type {{ type.mime }};
         }
 {%- endfor %}
 
+        # Hash-prefixed SVG files (_s*) with compression support
+        location ~ ^/_s([a-f0-9]+)$ {
+            {{ compressionLogic('_s$1') }}
+            default_type image/svg+xml;
+            add_header Cache-Control "public,immutable" always;
+        }
+
+        # Hash-prefixed CSS files (_c*) with compression support
+        location ~ ^/_c([a-f0-9]+)$ {
+            {{ compressionLogic('_c$1') }}
+            default_type text/css;
+            add_header Cache-Control "public,immutable" always;
+        }
+
+        # Hash-prefixed JS files (_j*) with compression support
+        location ~ ^/_j([a-f0-9]+)$ {
+            {{ compressionLogic('_j$1') }}
+            default_type application/javascript;
+            add_header Cache-Control "public,immutable" always;
+        }
+
+        # Hash-prefixed images (_i*) - serve original format or modern formats
+        location ~ ^/_i([a-f0-9]+)$ {
+            set $hash $1;
+
+            # Try files in order: AVIF (if supported) -> WebP (if supported) -> PNG -> JPG -> GIF -> ICO -> SVG
+            try_files /avif/$hash.avif /webp/$hash.webp /$hash.png /$hash.jpg /$hash.gif /$hash.ico /$hash.svg =404;
+
+            expires 10y;
+            add_header Cache-Control "public,immutable" always;
+            add_header Vary "Accept" always;
+        }
+
         # HTML pages with pre-compression support
         location / {
-{{ compressionLogic('$flat_html') }}
+            {{ compressionLogic('$flat_html') }}
             default_type text/html;
             charset utf-8;
             add_header X-Frame-Options "SAMEORIGIN" always;

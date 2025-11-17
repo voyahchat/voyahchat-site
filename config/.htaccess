@@ -56,63 +56,6 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} ^(.+)/$
 RewriteRule ^(.+)/$ /$1 [R=301,L]
 
-# Hash-prefixed CSS files (_c*) with Zstd - highest priority
-RewriteCond %{HTTP:Accept-Encoding} zstd
-RewriteCond %{DOCUMENT_ROOT}/zstd/%{REQUEST_URI}.zst -f
-RewriteRule ^(_c[a-f0-9]+)$ zstd/$1.zst [L,E=COMPRESSION:zstd,E=IS_CSS:1]
-
-# Hash-prefixed CSS files (_c*) with Brotli - second priority
-RewriteCond %{HTTP:Accept-Encoding} br
-RewriteCond %{DOCUMENT_ROOT}/brotli/%{REQUEST_URI}.br -f
-RewriteRule ^(_c[a-f0-9]+)$ brotli/$1.br [L,E=COMPRESSION:br,E=IS_CSS:1]
-
-# Hash-prefixed CSS files (_c*) with Gzip - fallback
-RewriteCond %{HTTP:Accept-Encoding} gzip
-RewriteCond %{DOCUMENT_ROOT}/gzip/%{REQUEST_URI}.gz -f
-RewriteRule ^(_c[a-f0-9]+)$ gzip/$1.gz [L,E=COMPRESSION:gzip,E=IS_CSS:1]
-
-# Hash-prefixed CSS files (_c*) uncompressed
-RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} -f
-RewriteRule ^(_c[a-f0-9]+)$ $1 [L,E=COMPRESSION:none,E=IS_CSS:1]
-
-# Hash-prefixed JS files (_j*) with Zstd - highest priority
-RewriteCond %{HTTP:Accept-Encoding} zstd
-RewriteCond %{DOCUMENT_ROOT}/zstd/%{REQUEST_URI}.zst -f
-RewriteRule ^(_j[a-f0-9]+)$ zstd/$1.zst [L,E=COMPRESSION:zstd,E=IS_JS:1]
-
-# Hash-prefixed JS files (_j*) with Brotli - second priority
-RewriteCond %{HTTP:Accept-Encoding} br
-RewriteCond %{DOCUMENT_ROOT}/brotli/%{REQUEST_URI}.br -f
-RewriteRule ^(_j[a-f0-9]+)$ brotli/$1.br [L,E=COMPRESSION:br,E=IS_JS:1]
-
-# Hash-prefixed JS files (_j*) with Gzip - fallback
-RewriteCond %{HTTP:Accept-Encoding} gzip
-RewriteCond %{DOCUMENT_ROOT}/gzip/%{REQUEST_URI}.gz -f
-RewriteRule ^(_j[a-f0-9]+)$ gzip/$1.gz [L,E=COMPRESSION:gzip,E=IS_JS:1]
-
-# Hash-prefixed JS files (_j*) uncompressed
-RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} -f
-RewriteRule ^(_j[a-f0-9]+)$ $1 [L,E=COMPRESSION:none,E=IS_JS:1]
-
-# Hash-prefixed SVG files (_s*) with Zstd - highest priority
-RewriteCond %{HTTP:Accept-Encoding} zstd
-RewriteCond %{DOCUMENT_ROOT}/zstd/%{REQUEST_URI}.zst -f
-RewriteRule ^(_s[a-f0-9]+)$ zstd/$1.zst [L,E=COMPRESSION:zstd,E=IS_SVG:1]
-
-# Hash-prefixed SVG files (_s*) with Brotli - second priority
-RewriteCond %{HTTP:Accept-Encoding} br
-RewriteCond %{DOCUMENT_ROOT}/brotli/%{REQUEST_URI}.br -f
-RewriteRule ^(_s[a-f0-9]+)$ brotli/$1.br [L,E=COMPRESSION:br,E=IS_SVG:1]
-
-# Hash-prefixed SVG files (_s*) with Gzip - fallback
-RewriteCond %{HTTP:Accept-Encoding} gzip
-RewriteCond %{DOCUMENT_ROOT}/gzip/%{REQUEST_URI}.gz -f
-RewriteRule ^(_s[a-f0-9]+)$ gzip/$1.gz [L,E=COMPRESSION:gzip,E=IS_SVG:1]
-
-# Hash-prefixed SVG files (_s*) uncompressed
-RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} -f
-RewriteRule ^(_s[a-f0-9]+)$ $1 [L,E=COMPRESSION:none,E=IS_SVG:1]
-
 # Hash-prefixed images (_i*) with AVIF support - highest priority
 RewriteCond %{HTTP:Accept} image/avif
 RewriteCond %{DOCUMENT_ROOT}/avif/$1.avif -f
@@ -124,16 +67,16 @@ RewriteCond %{DOCUMENT_ROOT}/webp/$1.webp -f
 RewriteRule ^_i([a-f0-9]+)$ webp/$1.webp [L,E=IS_IMAGE:1]
 
 # Hash-prefixed images (_i*) fallback to PNG
-RewriteCond %{DOCUMENT_ROOT}/$1.png -f
-RewriteRule ^_i([a-f0-9]+)$ $1.png [L,E=IS_IMAGE:1]
+RewriteCond %{DOCUMENT_ROOT}/png/$1.png -f
+RewriteRule ^_i([a-f0-9]+)$ png/$1.png [L,E=IS_IMAGE:1]
 
 # Hash-prefixed images (_i*) fallback to JPG
-RewriteCond %{DOCUMENT_ROOT}/$1.jpg -f
-RewriteRule ^_i([a-f0-9]+)$ $1.jpg [L,E=IS_IMAGE:1]
+RewriteCond %{DOCUMENT_ROOT}/jpg/$1.jpg -f
+RewriteRule ^_i([a-f0-9]+)$ jpg/$1.jpg [L,E=IS_IMAGE:1]
 
 # Hash-prefixed images (_i*) fallback to SVG
-RewriteCond %{DOCUMENT_ROOT}/$1.svg -f
-RewriteRule ^_i([a-f0-9]+)$ $1.svg [L,E=IS_IMAGE:1]
+RewriteCond %{DOCUMENT_ROOT}/svg/$1.svg -f
+RewriteRule ^_i([a-f0-9]+)$ svg/$1.svg [L,E=IS_IMAGE:1]
 
 # Static files with Zstd (CSS, JS, SVG, XML) - highest priority
 RewriteCond %{HTTP:Accept-Encoding} zstd
@@ -149,6 +92,22 @@ RewriteRule ^(.+\.(css|js|svg|xml))$ brotli/$1.br [L,E=COMPRESSION:br]
 RewriteCond %{HTTP:Accept-Encoding} gzip
 RewriteCond %{DOCUMENT_ROOT}/gzip/%{REQUEST_URI}.gz -f
 RewriteRule ^(.+\.(css|js|svg|xml))$ gzip/$1.gz [L,E=COMPRESSION:gzip]
+
+# Sitemap.xml specific handling (in xml/ directory)
+RewriteCond %{HTTP:Accept-Encoding} zstd
+RewriteCond %{DOCUMENT_ROOT}/zstd/sitemap.xml.zst -f
+RewriteRule ^sitemap\.xml$ zstd/sitemap.xml.zst [L,E=COMPRESSION:zstd]
+
+RewriteCond %{HTTP:Accept-Encoding} br
+RewriteCond %{DOCUMENT_ROOT}/brotli/sitemap.xml.br -f
+RewriteRule ^sitemap\.xml$ brotli/sitemap.xml.br [L,E=COMPRESSION:br]
+
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{DOCUMENT_ROOT}/gzip/sitemap.xml.gz -f
+RewriteRule ^sitemap\.xml$ gzip/sitemap.xml.gz [L,E=COMPRESSION:gzip]
+
+RewriteCond %{DOCUMENT_ROOT}/xml/sitemap.xml -f
+RewriteRule ^sitemap\.xml$ xml/sitemap.xml [L,E=COMPRESSION:none]
 
 # Uncompressed static files
 RewriteCond %{REQUEST_FILENAME} -f
@@ -173,98 +132,98 @@ RewriteRule ^$ gzip/index.html.gz [L,E=IS_HTML:1]
 RewriteCond %{DOCUMENT_ROOT}/index.html -f
 RewriteRule ^$ index.html [L,E=IS_HTML:1]
 
-# Single-level: /free → free.html (Zstd)
+# Single-level: /free → html/free.html (Zstd)
 RewriteCond %{HTTP:Accept-Encoding} zstd
 RewriteCond %{DOCUMENT_ROOT}/zstd/$1.html.zst -f
 RewriteRule ^([^/]+)$ zstd/$1.html.zst [L,E=IS_HTML:1]
 
-# Single-level: /free → free.html (Brotli)
+# Single-level: /free → html/free.html (Brotli)
 RewriteCond %{HTTP:Accept-Encoding} br
 RewriteCond %{DOCUMENT_ROOT}/brotli/$1.html.br -f
 RewriteRule ^([^/]+)$ brotli/$1.html.br [L,E=IS_HTML:1]
 
-# Single-level: /free → free.html (Gzip)
+# Single-level: /free → html/free.html (Gzip)
 RewriteCond %{HTTP:Accept-Encoding} gzip
 RewriteCond %{DOCUMENT_ROOT}/gzip/$1.html.gz -f
 RewriteRule ^([^/]+)$ gzip/$1.html.gz [L,E=IS_HTML:1]
 
-# Single-level: /free → free.html
+# Single-level: /free → html/free.html
 RewriteCond %{DOCUMENT_ROOT}/$1.html -f
 RewriteRule ^([^/]+)$ $1.html [L,E=IS_HTML:1]
 
-# Two-level: /free/models → free_models.html (Zstd)
+# Two-level: /free/models → html/free_models.html (Zstd)
 RewriteCond %{HTTP:Accept-Encoding} zstd
 RewriteCond %{DOCUMENT_ROOT}/zstd/$1_$2.html.zst -f
 RewriteRule ^([^/]+)/([^/]+)$ zstd/$1_$2.html.zst [L,E=IS_HTML:1]
 
-# Two-level: /free/models → free_models.html (Brotli)
+# Two-level: /free/models → html/free_models.html (Brotli)
 RewriteCond %{HTTP:Accept-Encoding} br
 RewriteCond %{DOCUMENT_ROOT}/brotli/$1_$2.html.br -f
 RewriteRule ^([^/]+)/([^/]+)$ brotli/$1_$2.html.br [L,E=IS_HTML:1]
 
-# Two-level: /free/models → free_models.html (Gzip)
+# Two-level: /free/models → html/free_models.html (Gzip)
 RewriteCond %{HTTP:Accept-Encoding} gzip
 RewriteCond %{DOCUMENT_ROOT}/gzip/$1_$2.html.gz -f
 RewriteRule ^([^/]+)/([^/]+)$ gzip/$1_$2.html.gz [L,E=IS_HTML:1]
 
-# Two-level: /free/models → free_models.html
+# Two-level: /free/models → html/free_models.html
 RewriteCond %{DOCUMENT_ROOT}/$1_$2.html -f
 RewriteRule ^([^/]+)/([^/]+)$ $1_$2.html [L,E=IS_HTML:1]
 
-# Three-level: /common/firmware/update → common_firmware_update.html (Zstd)
+# Three-level: /common/firmware/update → html/common_firmware_update.html (Zstd)
 RewriteCond %{HTTP:Accept-Encoding} zstd
 RewriteCond %{DOCUMENT_ROOT}/zstd/$1_$2_$3.html.zst -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ zstd/$1_$2_$3.html.zst [L,E=IS_HTML:1]
 
-# Three-level: /common/firmware/update → common_firmware_update.html (Brotli)
+# Three-level: /common/firmware/update → html/common_firmware_update.html (Brotli)
 RewriteCond %{HTTP:Accept-Encoding} br
 RewriteCond %{DOCUMENT_ROOT}/brotli/$1_$2_$3.html.br -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ brotli/$1_$2_$3.html.br [L,E=IS_HTML:1]
 
-# Three-level: /common/firmware/update → common_firmware_update.html (Gzip)
+# Three-level: /common/firmware/update → html/common_firmware_update.html (Gzip)
 RewriteCond %{HTTP:Accept-Encoding} gzip
 RewriteCond %{DOCUMENT_ROOT}/gzip/$1_$2_$3.html.gz -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ gzip/$1_$2_$3.html.gz [L,E=IS_HTML:1]
 
-# Three-level: /common/firmware/update → common_firmware_update.html
+# Three-level: /common/firmware/update → html/common_firmware_update.html
 RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3.html [L,E=IS_HTML:1]
 
-# Four-level: /common/firmware/update/paid → common_firmware_update_paid.html (Zstd)
+# Four-level: /common/firmware/update/paid → html/common_firmware_update_paid.html (Zstd)
 RewriteCond %{HTTP:Accept-Encoding} zstd
 RewriteCond %{DOCUMENT_ROOT}/zstd/$1_$2_$3_$4.html.zst -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ zstd/$1_$2_$3_$4.html.zst [L,E=IS_HTML:1]
 
-# Four-level: /common/firmware/update/paid → common_firmware_update_paid.html (Brotli)
+# Four-level: /common/firmware/update/paid → html/common_firmware_update_paid.html (Brotli)
 RewriteCond %{HTTP:Accept-Encoding} br
 RewriteCond %{DOCUMENT_ROOT}/brotli/$1_$2_$3_$4.html.br -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ brotli/$1_$2_$3_$4.html.br [L,E=IS_HTML:1]
 
-# Four-level: /common/firmware/update/paid → common_firmware_update_paid.html (Gzip)
+# Four-level: /common/firmware/update/paid → html/common_firmware_update_paid.html (Gzip)
 RewriteCond %{HTTP:Accept-Encoding} gzip
 RewriteCond %{DOCUMENT_ROOT}/gzip/$1_$2_$3_$4.html.gz -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ gzip/$1_$2_$3_$4.html.gz [L,E=IS_HTML:1]
 
-# Four-level: /common/firmware/update/paid → common_firmware_update_paid.html
+# Four-level: /common/firmware/update/paid → html/common_firmware_update_paid.html
 RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3_$4.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4.html [L,E=IS_HTML:1]
 
-# Five-level: /a/b/c/d/e → a_b_c_d_e.html (Zstd)
+# Five-level: /a/b/c/d/e → html/a_b_c_d_e.html (Zstd)
 RewriteCond %{HTTP:Accept-Encoding} zstd
 RewriteCond %{DOCUMENT_ROOT}/zstd/$1_$2_$3_$4_$5.html.zst -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ zstd/$1_$2_$3_$4_$5.html.zst [L,E=IS_HTML:1]
 
-# Five-level: /a/b/c/d/e → a_b_c_d_e.html (Brotli)
+# Five-level: /a/b/c/d/e → html/a_b_c_d_e.html (Brotli)
 RewriteCond %{HTTP:Accept-Encoding} br
 RewriteCond %{DOCUMENT_ROOT}/brotli/$1_$2_$3_$4_$5.html.br -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ brotli/$1_$2_$3_$4_$5.html.br [L,E=IS_HTML:1]
 
-# Five-level: /a/b/c/d/e → a_b_c_d_e.html (Gzip)
+# Five-level: /a/b/c/d/e → html/a_b_c_d_e.html (Gzip)
 RewriteCond %{HTTP:Accept-Encoding} gzip
 RewriteCond %{DOCUMENT_ROOT}/gzip/$1_$2_$3_$4_$5.html.gz -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ gzip/$1_$2_$3_$4_$5.html.gz [L,E=IS_HTML:1]
 
-# Five-level (if needed): /a/b/c/d/e → a_b_c_d_e.html
+# Five-level (if needed): /a/b/c/d/e → html/a_b_c_d_e.html
 RewriteCond %{DOCUMENT_ROOT}/$1_$2_$3_$4_$5.html -f
 RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L,E=IS_HTML:1]
 
@@ -347,6 +306,11 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L,E=I
     Header set Content-Type "image/x-icon"
 </FilesMatch>
 
+# Vary header for all image formats (for content negotiation)
+<FilesMatch "\.(avif|webp|png|jpg|jpeg|gif|svg)$">
+    Header always set Vary "Accept"
+</FilesMatch>
+
 <FilesMatch "\.pdf$">
     Header set Content-Type "application/pdf"
 </FilesMatch>
@@ -361,14 +325,18 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L,E=I
     Header always set Vary "Accept"
 </FilesMatch>
 
-# Security headers for HTML pages (clean URLs via IS_HTML env var)
-Header always set X-Frame-Options "SAMEORIGIN" env=IS_HTML
-Header always set X-Content-Type-Options "nosniff" env=IS_HTML
-Header always set Referrer-Policy "strict-origin-when-cross-origin" env=IS_HTML
+# Security headers for HTML pages
+<FilesMatch "\.(html|htm)(\.zst|\.br|\.gz)?$">
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</FilesMatch>
 
 # Cache-Control headers
-# HTML pages via clean URLs
-Header always set Cache-Control "public,no-cache" env=IS_HTML
+# HTML pages - no-cache
+<FilesMatch "\.(html|htm)(\.zst|\.br|\.gz)?$">
+    Header always set Cache-Control "public,no-cache"
+</FilesMatch>
 
 # Hashed static files (CSS, JS, images) - immutable
 <FilesMatch "\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp)(\.zst|\.br|\.gz)?$">

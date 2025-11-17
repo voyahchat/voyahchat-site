@@ -9,7 +9,7 @@ module.exports = {
     // Only show errors when tests actually fail
     tap: false,
     // Run files in parallel but collect output properly
-    concurrency: 512,
+    concurrency: 1,
     // Only show test failures
     reporter: 'verbose',
     // Increase timeout for W3C validation tests (default is 10s)

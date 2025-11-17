@@ -58,7 +58,11 @@
 
 # Testing
 - Tests use AVA in `lib/test/` (`*.test.js`), run via `npm test`
-- MUST use TestDir for test isolation - NO tests should modify original .build directory
+- MUST use TestDir for test isolation - creates isolated directories in `.test/`
+- **CRITICAL: NO tests should modify `site/` or `.build/` directories**
+  - Unit tests: Use TestDir for complete isolation
+  - Integration tests: Only READ from `site/` directory, never write
+  - `site/` directory is sacred - it contains production build artifacts
 - Test naming: `ClassName.method() - should do X when Y`
 - Use AAA pattern: Arrange-Act-Assert with clear separation
 - Use strict assertions: `t.is()`, `t.deepEqual()` not `t.truthy()`

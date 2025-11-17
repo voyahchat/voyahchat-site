@@ -32,6 +32,7 @@ http {
         "gzip/"         "gzip";
     }
 
+
     # Convert URL to flat filename: /free/12v -> free_12v.html
     map $uri $flat_html {
         default                                        "";
@@ -52,7 +53,7 @@ http {
 
     map $is_hashed_static $expires_time {
         0   1h;     # HTML, PDF, ZIP
-        1   1y;     # Hashed assets
+        1   10y;    # Hashed assets
     }
 
     map $is_hashed_static $cache_control {
@@ -89,13 +90,13 @@ http {
         }
 
 {# Macro for compression logic and common headers #}
-{%- macro compressionLogic(targetFile) -%}
+{%- macro compressionLogic(targetFile, compressedBasename) -%}
             set $target_file "{{ targetFile }}";
             set $file_path "";
             set $encoding_header "";
 
-            # Build compressed file path
-            set $check_file "${compression_dir}${target_file}${compression_suffix}";
+            # Build compressed file path using basename
+            set $check_file "${compression_dir}{% if compressedBasename %}{{ compressedBasename }}{% else %}${target_file}{% endif %}${compression_suffix}";
 
             # Check if compressed file exists
             if (-f "$document_root/$check_file") {
@@ -115,20 +116,6 @@ http {
             add_header Vary "Accept-Encoding" always;
             add_header Content-Encoding $encoding_header always;
 {%- endmacro -%}
-
-{% set staticTypes = [
-    { ext: 'css', mime: 'text/css' },
-    { ext: 'js',  mime: 'application/javascript' },
-    { ext: 'svg', mime: 'image/svg+xml' },
-    { ext: 'xml', mime: 'application/xml' }
-] %}
-{%- for type in staticTypes %}
-        # {{ type.ext | upper }} files with pre-compression
-        location ~* \.{{ type.ext }}$ {
-            {{ compressionLogic('$uri') }}
-            default_type {{ type.mime }};
-        }
-{%- endfor %}
 
         # Hash-prefixed SVG files (_s*) with compression support
         location ~ ^/_s([a-f0-9]+)$ {
@@ -151,6 +138,30 @@ http {
             add_header Cache-Control "public,immutable" always;
         }
 
+{% set staticTypes = [
+    { ext: 'css', mime: 'text/css', dir: 'css' },
+    { ext: 'js',  mime: 'application/javascript', dir: 'js' },
+    { ext: 'svg', mime: 'image/svg+xml', dir: 'svg' },
+    { ext: 'xml', mime: 'application/xml', dir: 'xml' }
+] %}
+{%- for type in staticTypes %}
+        # {{ type.ext | upper }} files with pre-compression
+        location ~* \.{{ type.ext }}$ {
+            {%- if type.dir %}
+            {{ compressionLogic(type.dir + '/$uri', '$uri') }}
+            {%- else %}
+            {{ compressionLogic('$uri') }}
+            {%- endif %}
+            default_type {{ type.mime }};
+        }
+{%- endfor %}
+
+        # Sitemap.xml with compression support
+        location = /sitemap.xml {
+            {{ compressionLogic('xml/sitemap.xml', 'sitemap.xml') }}
+            default_type application/xml;
+        }
+
         # Hash-prefixed images (_i*) - serve original format or modern formats
         location ~ ^/_i([a-f0-9]+)$ {
             set $hash $1;
@@ -165,7 +176,7 @@ http {
 
         # HTML pages with pre-compression support
         location / {
-            {{ compressionLogic('$flat_html') }}
+            {{ compressionLogic('html/$flat_html', '$flat_html') }}
             default_type text/html;
             charset utf-8;
             add_header X-Frame-Options "SAMEORIGIN" always;
@@ -182,3 +193,5 @@ http {
         }
     }
 }
+
+

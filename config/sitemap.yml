@@ -39,6 +39,7 @@ sitemap:
       - Голосовые команды [voice, common/tweaks_voice.md]
       - Установка [install, common/tweaks_install.md]
       - Установка NXP [install-nxp, common/tweaks_install-nxp.md]
+      - Скрипт быстрой настройки [settings-script, common/tweaks_settings-script.md]
       - Изменения по версиям [changelog, common/tweaks_changelog.md]
       - Возможности [features, common/tweaks_features.md]
     - Приложения [software, common/software.md]

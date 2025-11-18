@@ -1,6 +1,7 @@
-# Language & Documentation
-- Use English for all code, comments, and documentation
-- Keep docs brief and technical (NO EMOJI), in `README.md` only
+# A MUST RULES
+- Use English for code, comments and documentation
+- Keep docs brief and technical (NO EMOJI)
+- Use temporary files for complex script validation, not `node -c`
 
 # Backward Compatibility & Build Artifacts
 - DO NOT maintain backward compatibility - breaking changes are acceptable
@@ -17,7 +18,6 @@
 - Use `mv` to move files, not read/write operations
 - Test by reading generated HTML, not in a browser
 - Avoid reading large generated files (e.g., `.build/sitemap.json`)
-- Use temporary files for complex script validation, not `node -c`
 
 # Build Pipeline (Flow: Source → .build/ → site/)
 1. `clean`: Remove `.build/` and `site/`

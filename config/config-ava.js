@@ -1,21 +1,24 @@
 module.exports = {
-    // Suppress console output during tests unless test fails
-    failFast: false,
-    // Hide passed tests from output
-    verbose: false,
+    // CRITICAL: Tests MUST FAIL when they output ANY warnings or errors
+    // Enable failFast to stop immediately on first failure (including warnings)
+    failFast: true,
+    // Show detailed output for debugging warnings/errors
+    verbose: true,
     // Enable worker threads for faster test execution
     workerThreads: true,
-    // Suppress console.log and console.warn during tests
-    // Only show errors when tests actually fail
+    // DO NOT suppress console output - we need to see warnings to fail tests
     tap: false,
-    // Run files in parallel but collect output properly
-    concurrency: 1,
-    // Only show test failures
+    // Run files in parallel with reasonable concurrency
+    concurrency: 1000,
+    // Show all test output including failures
     reporter: 'verbose',
-    // Increase timeout for W3C validation tests (default is 10s)
-    timeout: '2m',
 
     files: [
         'lib/test/**/*.test.js',
     ],
+
+    // Additional configuration for strict testing
+    serial: false, // Allow parallel execution but with warning tracking per test
+    babel: false,  // No babel transformation needed
+    compileEnhancements: false, // No enhancements needed
 };

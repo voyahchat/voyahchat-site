@@ -220,56 +220,119 @@ Follow ESLint recommended configuration with 4-space indentation. End files with
 
 ## Testing
 
-The project uses AVA test framework with comprehensive test coverage across all build components. Tests are located in `lib/test/` with `.test.js` extension.
+The project uses AVA test framework with comprehensive test coverage across all build components. Tests are located in `lib/test/` with `.test.js` extension and support concurrent execution.
+
+### Test Types
+
+**Unit Tests:**
+- Use `TestDir` for complete isolation
+- Create temporary directories in `.test/`
+- Never write to `site/` or `.build/`
+- Example: `build-css.test.js`, `build-js.test.js`
+
+**Integration Tests:**
+- May READ from `site/` and `.build/` directories
+- Must NOT write to production directories
+- Use `TestDir` for temporary files
+- Example: `build-html-integration.test.js`
 
 ### Running Tests
 
 ```bash
-npm test                    # Run all tests (524 tests)
-npm test -- --watch         # Run tests in watch mode
-npm test -- --match="*CSS*" # Run specific tests by pattern
+# Run all tests
+npm test
+
+# Run tests concurrently (faster execution)
+npm test -- --concurrency=4
+
+# Run specific test file
+npm test -- build-css.test.js
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Run specific tests by pattern
+npm test -- --match="*CSS*"
 ```
 
 ### Test Structure and Organization
 
-Tests are organized by build component:
+Tests are organized by build component and functionality:
 
-- `build-assets.test.js` - Asset copying and processing tests
-- `build-css.test.js` - CSS generation and hashing tests
-- `build-html.test.js` - HTML generation and template tests
-- `build-images.test.js` - Image processing and hashing tests
-- `build-js.test.js` - JavaScript minification tests
-- `build-nav.test.js` - Navigation and sitemap generation tests
-- `hash.test.js` - File hashing utility tests
-- `integrity.test.js` - Build integrity and validation tests
-- `markdown-*.test.js` - Markdown processing and rendering tests
-- `nginx-*.test.js` - Nginx configuration tests
-- `stats.test.js` - Build statistics tests
-- `utils.test.js` - Test utility tests
+**Build Component Tests:**
+- `build-assets-unit.test.js` - Asset builder unit tests (23 tests)
+- `build-assets-integration.test.js` - Asset builder integration tests (9 tests)
+- `build-compression.test.js` - Compression builder tests (18 tests)
+- `build-css.test.js` - CSS generation and hashing tests (15 tests)
+- `build-html-unit.test.js` - HTML builder unit tests
+- `build-html-integration.test.js` - HTML builder integration tests (8 tests)
+- `build-html-helpers.test.js` - HTML helper function tests
+- `build-images.test.js` - Image processing tests (30 tests)
+- `build-js.test.js` - JavaScript minification tests (15 tests)
+- `build-sitemap.test.js` - Navigation and sitemap generation tests (50+ tests)
+- `build-templates-unit.test.js` - Template optimizer unit tests
+- `build-templates-integration.test.js` - Template optimizer integration tests (1 test)
+- `build-templates-pipeline.test.js` - Template build pipeline tests (5 tests)
 
-### Test Isolation
+**Markdown Processing Tests:**
+- `markdown.test.js` - Core markdown rendering tests (50+ tests)
+- `markdown-elements.test.js` - Markdown element rendering tests (18 tests)
+- `markdown-links.test.js` - Link transformation tests (25 tests)
+- `markdown-minification.test.js` - HTML minification tests (6 tests)
+- `markdown-image-replacement.test.js` - Image path replacement tests (5 tests)
 
-All tests use isolated temporary directories via `Dir.getTest()` from `lib/test/utils.js`. This ensures:
+**Build Pipeline Tests:**
+- `build-pipeline.test.js` - Full pipeline integration tests (21 tests)
+- `build-utils.test.js` - Build utility function tests (20 tests)
 
-- Each test runs in its own directory
-- Tests can run in parallel safely
-- No test pollution or shared state
-- Clean environment for every test
+**Infrastructure Tests:**
+- `dir.test.js` - Directory utility tests (15 tests)
+- `test-dir.test.js` - TestDir isolation tests (17 tests)
+- `utils.test.js` - Test utility tests (30 tests)
+- `hash.test.js` - File hashing tests (4 tests)
+- `stats.test.js` - Build statistics validation tests (20 tests)
+- `setup.test.js` - Project setup tests
 
-**STRICT RULE**: Tests MUST NOT modify the original `.build/` directory as this breaks parallel test execution.
+**Integration & Quality Tests:**
+- `integrity.test.js` - Link integrity and HTML quality tests (5 tests)
+- `nginx-config.test.js` - Nginx configuration generation tests
+- `nginx-integrity.test.js` - Nginx server integration tests (60+ tests)
+- `w3c-validation.test.js` - W3C HTML validation tests
+
+**Test Helpers:**
+- `utils.js` - Shared test utilities and factory functions
+- `test-dir.js` - TestDir class for test isolation
+- `console-interceptor.js` - Console output capture utility
+- `w3c-validator.js` - W3C HTML validation wrapper
+- `minification-benchmark.js` - Performance benchmarking utility
+
+### Test Isolation Architecture
+
+All tests use the **TestDir** pattern for complete isolation:
+
+- **TestDir Class**: Creates isolated test directories in `.test/`
+- **Dependency Injection**: Builders accept optional `dir` parameter
+- **No Global State**: Tests never mutate `Dir.getRoot`, `Dir.getBuild`, `Dir.getSite`
+- **Parallel Safe**: Tests can run concurrently without race conditions
+
+**STRICT RULES:**
+- Unit tests MUST NOT write to `site/` or `.build/` directories
+- Integration tests MAY READ from production but MUST write to TestDir
+- `site/` directory is sacred - contains production build artifacts
 
 ### Test Coverage
 
-Current test coverage: 524 passing tests
+**Current test coverage: 500+ passing tests across 34 test files**
 
 Coverage includes:
-- Build pipeline components (CSS, JS, HTML, images, assets)
-- Navigation and sitemap generation
-- Markdown processing and link transformation
-- Image mapping and hashing
-- Nginx configuration generation
-- Build statistics and integrity checks
-- Error handling and edge cases
+- **Build Pipeline:** CSS, JS, HTML, images, assets, compression, templates
+- **Navigation:** Sitemap generation, hierarchical URLs, heading extraction
+- **Markdown Processing:** Rendering, typography, link transformation, image replacement, minification
+- **Infrastructure:** Directory utilities, test isolation, file operations
+- **Integration:** Full pipeline tests, nginx server tests, W3C validation
+- **Quality Assurance:** Link integrity, HTML quality, build statistics validation
+- **Error Handling:** Edge cases, file system errors, corrupted data, permission issues
+- **Performance:** Compression ratios, caching, concurrent operations
 
 ### Testing Style Guide
 
@@ -622,9 +685,19 @@ test.serial('uses mocked directory', async (t) => {
 
 #### Dependency Injection for Builders
 
-Builder classes use Dependency Injection for the Dir class to enable test isolation:
+All builder classes use Dependency Injection for the Dir class to enable test isolation:
 
-**Pattern:**
+**Builder Pattern:**
+```javascript
+class Builder {
+    constructor(options = {}, dir = Dir) {
+        this.options = options;
+        this.dir = dir;  // Use injected or global Dir
+    }
+}
+```
+
+**Unit Test Pattern:**
 ```javascript
 const { TestDir } = require('./test-dir');
 
@@ -645,19 +718,55 @@ test('CSSBuilder - should process files', async (t) => {
 });
 ```
 
-**TestDir Helper:**
-- Located in `lib/test/test-dir.js`
-- Provides isolated directory paths for tests
-- Implements same interface as Dir class
-- Handles automatic cleanup on test completion
-- Enables parallel test execution without conflicts
+**Integration Test Pattern:**
+```javascript
+const { Dir } = require('../build/dir');
+const { TestDir } = require('./test-dir');
 
-**Benefits:**
-- No global state mocking required
+test('Integration - reads from production', async (t) => {
+    // Read from production (OK)
+    const sitePath = path.join(Dir.getSite(), 'index.html');
+    const content = await fs.readFile(sitePath, 'utf8');
+
+    // Write temporary files to TestDir if needed
+    const testDir = new TestDir();
+    const tempPath = path.join(testDir.getRoot(), 'temp.html');
+    await fs.writeFile(tempPath, processed);
+
+    t.truthy(content);
+});
+```
+
+**TestDir Class:**
+- Located in `lib/test/test-dir.js`
+- Creates isolated test directories in `.test/`
+- Provides Dir-like interface: `getRoot()`, `getBuild()`, `getSite()`, etc.
+- Automatically creates directories on first access
+- Each test gets unique directory
+- Handles automatic cleanup on test completion
+
+**Test Utilities (`lib/test/utils.js`):**
+- **File System:** `fileExists()`, `readJsonFile()`, `getAllFiles()`, `getFixturePath()`, `copyFixture()`
+- **Test Helpers:** `createTestFile()`, `createTestContent()`, `createTestSitemap()`, `createTestBuilder()`, `cleanupTestDir()`
+- **Validation:** `validateUnifiedFormat()`, `validateBuildArtifact()`, `validateHtml()`
+- **Assertions:** `assertValidJson()`, `assertPositiveNumber()`, `assertArrayNotEmpty()`
+- **Mock Factories:** `createMockSitemap()`, `createMockImageMapping()`, `createMockAssetsMapping()`, `createMockCssHash()`, `createMockJsHash()`
+- **Environment Setup:** `setupTestEnvironment()` - creates complete test environment with all mock files
+- **Data Loaders:** `getSitemap()`, `getImageMapping()`, `getAssetsMapping()` - test-aware versions
+
+**Test Helpers:**
+- **`test-dir.js`:** TestDir class for complete test isolation with automatic cleanup
+- **`console-interceptor.js`:** Captures and validates console output during tests
+- **`w3c-validator.js`:** W3C Nu Html Checker integration for HTML validation
+- **`minification-benchmark.js`:** Performance benchmarking for minification operations
+
+**Key Benefits:**
+- No global state mutations required
 - Automatic cleanup - no manual teardown needed
-- Tests can run in parallel safely
+- Tests can run in parallel safely (concurrent execution)
 - Cleaner, more maintainable test code
 - Explicit dependencies
+- Complete test isolation
 
 **Rationale:** Dependency Injection eliminates global state dependencies and enables true test isolation with automatic cleanup.
 

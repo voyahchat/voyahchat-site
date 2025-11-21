@@ -12,6 +12,8 @@ module.exports = {
     concurrency: 1000,
     // Show all test output including failures
     reporter: 'verbose',
+    // Set timeout for integration tests that read large build artifacts
+    timeout: '2m',
 
     files: [
         'lib/test/**/*.test.js',

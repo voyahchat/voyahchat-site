@@ -35,6 +35,24 @@ Build flow: Source → .build/ → site/
 7. `build:templates` - Optimize Nunjucks templates to .build/templates/
 8. `build:html` - Build HTML content to site/
 9. `build:compression` - Compress assets in site/
+10. `build:timestamps` - Set Git-based modification times on files
+
+### File Timestamps
+
+The `build:timestamps` step sets Git-based file modification times to prevent unnecessary Last-Modified header changes during deployments:
+
+**Features:**
+- Sets modification times based on Git commit history
+- Applies to HTML files, compressed files, PDF/ZIP files, and sitemap.xml
+- Uses `git log -1 --format=%ct` to get last modification timestamp
+- Maps generated files to source files for accurate timestamps
+- Generates statistics in `.build/build-timestamps.json`
+
+**Benefits:**
+- **Improved Caching**: Files with unchanged content keep their original modification time
+- **Accurate History**: Modification times reflect actual content changes
+- **Deployment Efficiency**: Reduces unnecessary cache invalidation
+- **HTTP Headers**: Last-Modified headers accurately reflect content changes
 
 ### Template Optimization
 
@@ -903,5 +921,6 @@ All build scripts generate statistics files in `.build/` directory using a unifi
 - `.build/build-templates.json` - Optimized templates with size reduction stats
 - `.build/build-compression.json` - Compressed files (gzip, brotli, and zstd)
 - `.build/build-html.json` - Generated HTML files with URLs
+- `.build/build-timestamps.json` - File timestamps with Git history data
 
 Each file entry contains `source`, `size`, and script-specific `metadata`. Build-level metadata includes generation timestamp.

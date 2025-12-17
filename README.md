@@ -278,43 +278,44 @@ npm test -- --match="*CSS*"
 Tests are organized by build component and functionality:
 
 **Build Component Tests:**
-- `build-assets-unit.test.js` - Asset builder unit tests (23 tests)
-- `build-assets-integration.test.js` - Asset builder integration tests (9 tests)
-- `build-compression.test.js` - Compression builder tests (18 tests)
-- `build-css.test.js` - CSS generation and hashing tests (15 tests)
+- `build-assets-unit.test.js` - Asset builder unit tests
+- `build-assets-integration.test.js` - Asset builder integration tests
+- `build-compression.test.js` - Compression builder tests
+- `build-css.test.js` - CSS generation and hashing tests
 - `build-html-unit.test.js` - HTML builder unit tests
-- `build-html-integration.test.js` - HTML builder integration tests (8 tests)
+- `build-html-integration.test.js` - HTML builder integration tests
 - `build-html-helpers.test.js` - HTML helper function tests
-- `build-images.test.js` - Image processing tests (30 tests)
-- `build-js.test.js` - JavaScript minification tests (15 tests)
-- `build-sitemap.test.js` - Navigation and sitemap generation tests (50+ tests)
+- `build-images.test.js` - Image processing tests
+- `build-js.test.js` - JavaScript minification tests
+- `build-sitemap.test.js` - Navigation and sitemap generation tests
 - `build-templates-unit.test.js` - Template optimizer unit tests
-- `build-templates-integration.test.js` - Template optimizer integration tests (1 test)
-- `build-templates-pipeline.test.js` - Template build pipeline tests (5 tests)
+- `build-templates-integration.test.js` - Template optimizer integration tests
+- `build-templates-pipeline.test.js` - Template build pipeline tests
 
 **Markdown Processing Tests:**
-- `markdown.test.js` - Core markdown rendering tests (50+ tests)
-- `markdown-elements.test.js` - Markdown element rendering tests (18 tests)
-- `markdown-links.test.js` - Link transformation tests (25 tests)
-- `markdown-minification.test.js` - HTML minification tests (6 tests)
-- `markdown-image-replacement.test.js` - Image path replacement tests (5 tests)
+- `markdown.test.js` - Core markdown rendering tests
+- `markdown-elements.test.js` - Markdown element rendering tests
+- `markdown-links.test.js` - Link transformation tests
+- `markdown-minification.test.js` - HTML minification tests
+- `markdown-image-replacement.test.js` - Image path replacement tests
+- `markdown-content-validation.test.js` - Markdown list formatting validation tests
 
 **Build Pipeline Tests:**
-- `build-pipeline.test.js` - Full pipeline integration tests (21 tests)
-- `build-utils.test.js` - Build utility function tests (20 tests)
+- `build-pipeline.test.js` - Full pipeline integration tests
+- `build-utils.test.js` - Build utility function tests
 
 **Infrastructure Tests:**
-- `dir.test.js` - Directory utility tests (15 tests)
-- `test-dir.test.js` - TestDir isolation tests (17 tests)
-- `utils.test.js` - Test utility tests (30 tests)
-- `hash.test.js` - File hashing tests (4 tests)
-- `stats.test.js` - Build statistics validation tests (20 tests)
+- `dir.test.js` - Directory utility tests
+- `test-dir.test.js` - TestDir isolation tests
+- `utils.test.js` - Test utility tests
+- `hash.test.js` - File hashing tests
+- `stats.test.js` - Build statistics validation tests
 - `setup.test.js` - Project setup tests
 
 **Integration & Quality Tests:**
-- `integrity.test.js` - Link integrity and HTML quality tests (5 tests)
+- `integrity.test.js` - Link integrity and HTML quality tests
 - `nginx-config.test.js` - Nginx configuration generation tests
-- `nginx-integrity.test.js` - Nginx server integration tests (60+ tests)
+- `nginx-integrity.test.js` - Nginx server integration tests
 - `w3c-validation.test.js` - W3C HTML validation tests
 
 **Test Helpers:**

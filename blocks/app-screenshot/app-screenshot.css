@@ -1,4 +1,6 @@
 .app-screenshot {
+    display: block;
+
     width: calc(100% + 1.5rem);
     max-width: 480px;
     max-height: 950px;

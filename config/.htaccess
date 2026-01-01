@@ -38,6 +38,7 @@ Redirect 301 /common/software/rustore-mac /common/software/rustore
 Redirect 301 /common/software/yandex-navi-nxp-mac /common/software/yandex-navi-nxp
 
 Redirect 301 /free/choice /free/models
+Redirect 301 /common/firmware/update/paid /help/firmware
 
 DirectoryIndex index.html
 

@@ -14,18 +14,5 @@
 .page-index .page__foot {
     position: static;
 
-    height: 100%;
-
     transform: translateX(-1rem);
-}
-
-@media (min-width: 1000px) {
-    .page-index .page__foot {
-        position: absolute;
-        bottom: 50px;
-
-        height: auto;
-
-        transform: translateX(calc(-50% - 1.3rem));
-    }
 }

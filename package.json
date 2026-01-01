@@ -29,6 +29,7 @@
     "@mongodb-js/zstd": "^7.0.0",
     "autoprefixer": "^10.4.16",
     "ava": "^6.4.1",
+    "baseline-browser-mapping": "^2.9.11",
     "basic-ftp": "^5.1.0",
     "concurrently": "^9.2.1",
     "csso": "^5.0.5",

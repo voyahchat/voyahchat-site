@@ -10,6 +10,7 @@ npm run build    # Full build pipeline
 npm start        # Build and serve on localhost:8080
 npm stop         # Stop nginx server
 npm test         # Run test suite
+npm run deploy   # Deploy to FTP server
 npm run benchmark # Performance benchmarking
 ```
 
@@ -35,17 +36,22 @@ Build flow: Source → .build/ → site/
 7. `build:templates` - Optimize Nunjucks templates to .build/templates/
 8. `build:html` - Build HTML content to site/
 9. `build:compression` - Compress assets in site/
-10. `build:timestamps` - Set Git-based modification times on files
+10. `build:timestamps` - Generate timestamps.json
 
 ### File Timestamps
 
-The `build:timestamps` step sets Git-based file modification times to prevent unnecessary Last-Modified header changes during deployments:
+The build system sets Git-based file modification times during various build steps and generates timestamps.json for optimized FTP deployments:
 
-**Features:**
-- Sets modification times based on Git commit history
-- Applies to HTML files, compressed files, PDF/ZIP files, and sitemap.xml
-- Uses `git log -1 --format=%ct` to get last modification timestamp
+**Timestamp Setting Process:**
+- Each build module (CSS, JS, HTML, images, etc.) sets file timestamps using `Timestamp.setTimestamp()`
+- Uses `git log -1 --format=%ct` to get last modification timestamp from Git history
 - Maps generated files to source files for accurate timestamps
+- Applies to HTML files, compressed files, PDF/ZIP files, and sitemap.xml
+
+**The `build:timestamps` step:**
+- Generates timestamps.json with all file timestamps from site/ directory
+- Collects already-set timestamps from all files in site/ directory
+- Creates timestamps.json for FTP deployment optimization
 - Generates statistics in `.build/build-timestamps.json`
 
 **Benefits:**
@@ -53,6 +59,7 @@ The `build:timestamps` step sets Git-based file modification times to prevent un
 - **Accurate History**: Modification times reflect actual content changes
 - **Deployment Efficiency**: Reduces unnecessary cache invalidation
 - **HTTP Headers**: Last-Modified headers accurately reflect content changes
+- **FTP Optimization**: timestamps.json enables faster incremental deployments by reducing FTP commands
 
 ### Template Optimization
 
@@ -317,6 +324,7 @@ Tests are organized by build component and functionality:
 - `nginx-config.test.js` - Nginx configuration generation tests
 - `nginx-integrity.test.js` - Nginx server integration tests
 - `w3c-validation.test.js` - W3C HTML validation tests
+- `deploy.test.js` - FTP deployment with timestamp preservation tests
 
 **Test Helpers:**
 - `utils.js` - Shared test utilities and factory functions
@@ -863,6 +871,108 @@ The project includes a comprehensive CI/CD pipeline (`.github/workflows/ci.yml`)
 
 ## Deployment
 
+### FTP Deployment with Timestamp Preservation
+
+The project includes FTP deployment with Git-based timestamp preservation using MFMT/MDTM commands.
+
+#### Setup
+
+1. Create `config/ftp.yml` with server credentials:
+```yaml
+host: "ftp.example.com"
+port: 21
+user: "username"
+password: "password"
+remote_path: "/www/voyahchat.ru"
+secure: true  # Use FTPS
+progress: true  # Show deployment progress (default: true)
+```
+
+2. Run initial deployment:
+```bash
+npm run deploy -- --force  # Upload all files first time
+```
+
+#### Usage
+
+```bash
+# Incremental deployment (default) - only changed files
+npm run deploy
+
+# Force deployment - upload all files
+npm run deploy -- --force
+
+# Dry run - show what would be uploaded without actually doing it
+npm run deploy -- --dry-run
+
+# Force dry run - show all files that would be uploaded
+npm run deploy -- --force --dry-run
+
+# Quiet mode - no progress display
+npm run deploy -- --progress=false
+
+# Test deployment
+npm test -- --match="*deploy*"
+```
+
+#### Features
+
+- Timestamp Preservation: Preserves Git-based file modification times using MFMT/MDTM commands
+- Incremental Deployment: Only uploads files that have changed based on timestamp comparison
+- Optimized Timestamp Comparison: Uses timestamps.json files to reduce FTP commands
+- Local Timestamp Analysis: Downloads server timestamps and compares locally instead of individual MDTM calls
+- Dry Run Mode: Preview what would be uploaded without actually transferring files
+- Secure Connection: Supports FTPS (explicit) for secure transfers
+- Batch Processing: Processes files in configurable batches
+- Progress Reporting: Shows upload progress and summary statistics (configurable via progress option)
+- Configurable Output: Control console output with progress parameter in config or command line
+
+#### Server Requirements
+
+- FTP server with MFMT/MDTM support (RFC 3659)
+- Explicit FTPS (AUTH TLS) for secure connections
+- Write permissions to remote directory
+
+#### Server Compatibility
+
+The FTP deployment has been tested and confirmed to work with servers supporting:
+- MFMT command for setting file modification times
+- MDTM command for retrieving file modification times
+- 5-second tolerance for timezone differences between client and server
+
+#### Configuration Options
+
+The `config/ftp.yml` file supports the following options:
+
+```yaml
+host: "ftp.example.com"        # FTP server hostname (required)
+port: 21                       # FTP server port (default: 21)
+user: "username"               # FTP username (required)
+password: "password"           # FTP password (required)
+remote_path: "/www/site"       # Remote directory path (required)
+secure: true                   # Use FTPS (default: false)
+progress: true                 # Show deployment progress (default: true)
+```
+
+**Passive Mode:**
+- Passive mode is always enabled by default as it's the standard for modern FTP connections
+- Client initiates data connections, which works better with firewalls and NAT networks
+- No configuration option needed - passive mode is automatically used
+
+#### Command Line Options
+
+All configuration options can be overridden via command line:
+
+```bash
+# Override progress
+npm run deploy -- --progress=false
+
+# Override multiple options
+npm run deploy -- --force --progress=false --dry-run
+```
+
+### Manual Deployment
+
 1. Run `npm run build`
 2. Deploy the `site/` directory contents
 3. Serve with a static web server
@@ -923,5 +1033,6 @@ All build scripts generate statistics files in `.build/` directory using a unifi
 - `.build/build-compression.json` - Compressed files (gzip, brotli, and zstd)
 - `.build/build-html.json` - Generated HTML files with URLs
 - `.build/build-timestamps.json` - File timestamps with Git history data
+- `site/timestamps.json` - All file timestamps for FTP deployment optimization
 
 Each file entry contains `source`, `size`, and script-specific `metadata`. Build-level metadata includes generation timestamp.

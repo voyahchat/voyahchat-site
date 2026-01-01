@@ -1,5 +1,6 @@
 .assets
 .build
+config/ftp.yml
 external
 site
 

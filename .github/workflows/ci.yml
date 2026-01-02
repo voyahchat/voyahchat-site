@@ -130,6 +130,17 @@ jobs:
     - name: Run ESLint
       run: npm run lint
 
+    - name: Install nginx
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nginx
+        # Create necessary directories for nginx
+        sudo mkdir -p /tmp/nginx-logs
+        sudo chown -R $USER:$USER /tmp/nginx-logs
+
+    - name: Configure Git
+      run: git config --global advice.defaultBranchName false
+
     - name: Run tests
       run: npm test
 

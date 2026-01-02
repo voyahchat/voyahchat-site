@@ -127,10 +127,8 @@ jobs:
     - name: Run ESLint
       run: npm run lint
 
-    - name: Install nginx
+    - name: Create nginx logs directory
       run: |
-        sudo apt-get update
-        sudo apt-get install -y nginx
         # Create necessary directories for nginx
         sudo mkdir -p /tmp/nginx-logs
         sudo chown -R $USER:$USER /tmp/nginx-logs

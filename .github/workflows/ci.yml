@@ -83,14 +83,15 @@ jobs:
         retention-days: 7
 
     - name: Cache repositories
-      if: needs.determine-strategy.outputs.build-type != 'full'
       uses: actions/cache@v4
       with:
         path: |
+          external/voyahchat-content
           external/voyahchat-docs
           external/voyahchat-install
         key: ${{ needs.determine-strategy.outputs.cache-key }}
         restore-keys: |
+          content-
           docs-
           install-
           external-
@@ -145,11 +146,12 @@ jobs:
     - name: Run performance benchmark
       run: node lib/build/benchmark.js
 
-    - name: Update cache for docs and install
-      if: needs.determine-strategy.outputs.build-type == 'full'
+    - name: Save cache
+      if: always()
       uses: actions/cache@v4
       with:
         path: |
+          external/voyahchat-content
           external/voyahchat-docs
           external/voyahchat-install
         key: ${{ needs.determine-strategy.outputs.cache-key }}
@@ -172,13 +174,6 @@ jobs:
         fi
         npm run deploy
 
-    - name: Upload build artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-files-${{ github.sha }}
-        path: site/
-        retention-days: 30
 
     - name: Build metrics
       if: always()

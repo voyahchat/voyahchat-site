@@ -4,6 +4,7 @@
   "description": "VoyahChat site",
   "scripts": {
     "setup": "node lib/build/setup.js",
+    "setup:ci": "node lib/build/setup-ci.js",
     "clean": "rm -rf .build/ site/",
     "build:css": "node lib/build/build-css.js",
     "build:assets": "node lib/build/build-assets.js",

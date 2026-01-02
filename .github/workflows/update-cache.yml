@@ -1,0 +1,63 @@
+name: Update Cache
+
+on:
+  schedule:
+    # Every 5 days
+    - cron: '0 0 */5 * *'
+  # You can run manualy
+  workflow_dispatch:
+
+jobs:
+  update-cache:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+        lfs: false
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Update all repositories and refresh cache
+      run: |
+        echo "Starting cache update at $(date)"
+        echo "This will ensure cache is fresh for the next 7 days"
+
+        # Setup all repositories (this will update the cache)
+        npm run setup:ci
+
+        echo "Cache update completed at $(date)"
+        echo "Next automatic update: $(date -d '+5 days')"
+
+    - name: Cache status
+      run: |
+        echo "## Cache Update Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Update Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Next Update**: $(date -d '+5 days')" >> $GITHUB_STEP_SUMMARY
+
+        if [[ -d "external" ]]; then
+          echo "- **External Directory Size**: $(du -sh external | cut -f1)" >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Repository Sizes:" >> $GITHUB_STEP_SUMMARY
+          for repo in external/*/; do
+            if [[ -d "$repo" ]]; then
+              reponame=$(basename "$repo")
+              size=$(du -sh "$repo" | cut -f1)
+              echo "- **$reponame**: $size" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+        fi
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Cache is now fresh and ready for fast content builds!" >> $GITHUB_STEP_SUMMARY
+

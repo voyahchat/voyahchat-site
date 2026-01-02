@@ -1,14 +1,57 @@
-name: CI/CD Pipeline
+name: Optimized CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
+  repository_dispatch:
+    types: [content-updated]
 
 jobs:
+  determine-strategy:
+    runs-on: ubuntu-latest
+    outputs:
+      build-type: ${{ steps.strategy.outputs.build-type }}
+      cache-key: ${{ steps.strategy.outputs.cache-key }}
+      trigger-repo: ${{ steps.strategy.outputs.trigger-repo }}
+
+    steps:
+    - name: Determine build strategy
+      id: strategy
+      run: |
+        if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+          REPO="${{ github.event.client_payload.repository }}"
+          if [[ "$REPO" == *"voyahchat-content"* ]]; then
+            echo "build-type=content" >> $GITHUB_OUTPUT
+            echo "cache-key=content-${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
+            echo "trigger-repo=content" >> $GITHUB_OUTPUT
+          elif [[ "$REPO" == *"voyahchat-docs"* ]]; then
+            echo "build-type=docs" >> $GITHUB_OUTPUT
+            echo "cache-key=docs-${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
+            echo "trigger-repo=docs" >> $GITHUB_OUTPUT
+          elif [[ "$REPO" == *"voyahchat-install"* ]]; then
+            echo "build-type=install" >> $GITHUB_OUTPUT
+            echo "cache-key=install-${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
+            echo "trigger-repo=install" >> $GITHUB_OUTPUT
+          else
+            echo "build-type=full" >> $GITHUB_OUTPUT
+            echo "cache-key=full-${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "trigger-repo=unknown" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "build-type=full" >> $GITHUB_OUTPUT
+          echo "cache-key=full-${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "trigger-repo=site" >> $GITHUB_OUTPUT
+        fi
+
+        echo "Build type: ${{ steps.strategy.outputs.build-type }}"
+        echo "Cache key: ${{ steps.strategy.outputs.cache-key }}"
+        echo "Trigger repo: ${{ steps.strategy.outputs.trigger-repo }}"
+
   build-and-test:
     runs-on: ubuntu-latest
+    needs: determine-strategy
 
     strategy:
       matrix:
@@ -17,6 +60,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 1  # Shallow clone to reduce bandwidth
+        lfs: false      # We'll pull LFS files selectively
 
     - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
@@ -27,35 +73,110 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    # TODO: Uncomment when ready to enable linting
-    # - name: Run ESLint
-    #   run: npm run lint
+    - name: Cache repositories
+      if: needs.determine-strategy.outputs.build-type != 'full'
+      uses: actions/cache@v4
+      with:
+        path: |
+          external/voyahchat-docs
+          external/voyahchat-install
+        key: ${{ needs.determine-strategy.outputs.cache-key }}
+        restore-keys: |
+          docs-
+          install-
+          external-
 
-    # TODO: Uncomment when ready to enable tests
-    # - name: Run tests
-    #   run: npm test
+    - name: Setup external repositories
+      run: |
+        echo "Build type: ${{ needs.determine-strategy.outputs.build-type }}"
+        echo "Trigger repository: ${{ needs.determine-strategy.outputs.trigger-repo }}"
 
-    # TODO: Uncomment when ready to enable build
-    # - name: Build project
-    #   run: npm run build
+        # Use smart CI setup that handles each repository individually
+        echo "Setting up repositories with smart caching..."
+        npm run setup:ci
 
-    # TODO: Uncomment when ready to enable benchmark
-    # - name: Run performance benchmark
-    #   run: node lib/build/benchmark.js
+    - name: Verify repository setup
+      run: |
+        echo "External directory contents:"
+        ls -la external/ || echo "No external directory"
 
-    # TODO: Uncomment when ready to enable deployment
-    # - name: Deploy to staging
-    #   if: github.ref == 'refs/heads/develop'
-    #   run: |
-    #     echo "Deploy to staging environment"
-    #     # Add deployment commands here
+        if [[ -d "external/voyahchat-content" ]]; then
+          echo "Content repo size:"
+          du -sh external/voyahchat-content
+        fi
 
-    # TODO: Uncomment when ready to enable production deployment
-    # - name: Deploy to production
-    #   if: github.ref == 'refs/heads/main'
-    #   run: |
-    #     echo "Deploy to production environment"
-    #     # Add deployment commands here
+        if [[ -d "external/voyahchat-docs" ]]; then
+          echo "Docs repo size:"
+          du -sh external/voyahchat-docs
+        fi
+
+        if [[ -d "external/voyahchat-install" ]]; then
+          echo "Install repo size:"
+          du -sh external/voyahchat-install
+        fi
+
+    - name: Run ESLint
+      run: npm run lint
+
+    - name: Run tests
+      run: npm test
+
+    - name: Build project
+      run: npm run build
+
+    - name: Run performance benchmark
+      run: node lib/build/benchmark.js
+
+    - name: Update cache for docs and install
+      if: needs.determine-strategy.outputs.build-type == 'full'
+      uses: actions/cache@v4
+      with:
+        path: |
+          external/voyahchat-docs
+          external/voyahchat-install
+        key: ${{ needs.determine-strategy.outputs.cache-key }}
+
+    - name: Deploy to production
+      if: github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch'
+      env:
+        FTP_HOST: ${{ secrets.FTP_HOST }}
+        FTP_PORT: ${{ secrets.FTP_PORT }}
+        FTP_USER: ${{ secrets.FTP_USER }}
+        FTP_PASS: ${{ secrets.FTP_PASS }}
+        FTP_PATH: ${{ secrets.FTP_PATH }}
+      run: |
+        echo "Deploying to production environment"
+        echo "Build type: ${{ needs.determine-strategy.outputs.build-type }}"
+        echo "Triggered by: ${{ github.event_name }}"
+        if [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+          echo "Content repository: ${{ github.event.client_payload.repository }}"
+          echo "Commit SHA: ${{ github.event.client_payload.sha }}"
+        fi
+        npm run deploy
+
+    - name: Upload build artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-files-${{ github.sha }}
+        path: site/
+        retention-days: 30
+
+    - name: Build metrics
+      if: always()
+      run: |
+        echo "## Build Metrics" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Type**: ${{ needs.determine-strategy.outputs.build-type }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Trigger Repository**: ${{ needs.determine-strategy.outputs.trigger-repo }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Cache Key**: ${{ needs.determine-strategy.outputs.cache-key }}" >> $GITHUB_STEP_SUMMARY
+
+        if [[ -d "external" ]]; then
+          echo "- **External Directory Size**: $(du -sh external | cut -f1)" >> $GITHUB_STEP_SUMMARY
+        fi
+
+        if [[ -d "site" ]]; then
+          echo "- **Build Output Size**: $(du -sh site | cut -f1)" >> $GITHUB_STEP_SUMMARY
+        fi
 
   # TODO: Uncomment when ready to enable security scanning
   # security-scan:

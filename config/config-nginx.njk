@@ -7,7 +7,7 @@ events {
 }
 
 http {
-    include /opt/homebrew/etc/nginx/mime.types;
+    include {{ MIME_TYPES_PATH }};
 
     # Map Accept-Encoding to compression directory (priority: zstd > brotli > gzip)
     map $http_accept_encoding $compression_dir {

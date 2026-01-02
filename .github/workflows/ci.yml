@@ -75,12 +75,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        rm -rf node_modules
-        npm cache clean --force
-        npm ci --no-audit --no-fund || {
-          echo "npm ci failed, trying alternative approach..."
-          npm install --no-audit --no-fund
-        }
+        npm ci --no-audit --no-fund
 
     - name: Upload npm debug logs
       if: failure()

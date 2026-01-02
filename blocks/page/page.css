@@ -11,6 +11,8 @@
 }
 
 .page__main {
+    position: relative;
+
     padding-bottom: calc(50px + 6rem);
 
     background: #fff;

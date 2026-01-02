@@ -1,16 +1,26 @@
 .footer {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
+    width: 100%;
     height: 6rem;
 
-    font-size: 200%;
-    text-align: center;
     white-space: nowrap;
 }
 
+.footer__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    height: 100%;
+    padding: 0 1rem;
+    gap: 0.5rem;
+}
+
 .footer__tg {
+    display: flex;
+    align-items: center;
+
+    font-size: 200%;
     text-decoration: none;
 
     color: inherit;
@@ -18,7 +28,15 @@
 
 .footer__tg-icon {
     position: relative;
-    top: .3ex;
+    top: .1ex;
 
     height: 1.7ex;
+    margin-right: 0.5rem;
+}
+
+.footer__updated {
+    position: relative;
+    top: -.5ex;
+
+    color: #aaa;
 }

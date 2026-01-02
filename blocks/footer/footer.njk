@@ -1,8 +1,15 @@
 <footer class="page__foot footer">
-    <a class={% if page.url == '/' %}"footer__tg link-nav"{% else %}footer__tg{% endif %} href="https://t.me/voyahchat">
-        <svg class="footer__tg-icon" viewBox="0 0 15 15" fill="none">
-            <path stroke="currentColor" stroke-linejoin="round" d="m14.5 1.5-14 5 4 2 6-4-4 5 6 4z"/>
-        </svg>
-        voyahchat
-    </a>
+    <div class="footer__content">
+        <a class={% if page.url == '/' %}"footer__tg link-nav"{% else %}footer__tg{% endif %} href="https://t.me/voyahchat">
+            <svg class="footer__tg-icon" viewBox="0 0 15 15" fill="none">
+                <path stroke="currentColor" stroke-linejoin="round" d="m14.5 1.5-14 5 4 2 6-4-4 5 6 4z"/>
+            </svg>
+            voyahchat
+        </a>
+        {% if page.lastUpdated %}
+        <div class="footer__updated">
+            Обновлено {{ page.lastUpdated }}
+        </div>
+        {% endif %}
+    </div>
 </footer>

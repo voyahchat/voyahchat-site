@@ -49,13 +49,11 @@ jobs:
         echo "Cache key: ${{ steps.strategy.outputs.cache-key }}"
         echo "Trigger repo: ${{ steps.strategy.outputs.trigger-repo }}"
 
-  build-and-test:
+  setup:
     runs-on: ubuntu-latest
     needs: determine-strategy
-
-    strategy:
-      matrix:
-        node-version: [22.x]
+    outputs:
+      cache-hit: ${{ steps.cache.outputs.cache-hit }}
 
     steps:
     - name: Checkout code
@@ -64,25 +62,18 @@ jobs:
         fetch-depth: 1  # Shallow clone to reduce bandwidth
         lfs: false      # We'll pull LFS files selectively
 
-    - name: Setup Node.js ${{ matrix.node-version }}
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '22.x'
         cache: 'npm'
 
     - name: Install dependencies
       run: |
         npm ci --no-audit --no-fund
 
-    - name: Upload npm debug logs
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: npm-debug-logs
-        path: ~/.npm/_logs/
-        retention-days: 7
-
     - name: Cache repositories
+      id: cache
       uses: actions/cache@v4
       with:
         path: |
@@ -125,27 +116,6 @@ jobs:
           du -sh external/voyahchat-install
         fi
 
-    - name: Run ESLint
-      run: npm run lint
-
-    - name: Create nginx logs directory
-      run: |
-        # Create necessary directories for nginx
-        sudo mkdir -p /tmp/nginx-logs
-        sudo chown -R $USER:$USER /tmp/nginx-logs
-
-    - name: Configure Git
-      run: git config --global advice.defaultBranchName false
-
-    - name: Run tests
-      run: npm test
-
-    - name: Build project
-      run: npm run build
-
-    - name: Run performance benchmark
-      run: node lib/build/benchmark.js
-
     - name: Save cache
       if: always()
       uses: actions/cache@v4
@@ -156,8 +126,174 @@ jobs:
           external/voyahchat-install
         key: ${{ needs.determine-strategy.outputs.cache-key }}
 
+  lint-and-test:
+    runs-on: ubuntu-latest
+    needs: [determine-strategy, setup]
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1  # Shallow clone to reduce bandwidth
+        lfs: false      # We'll pull LFS files selectively
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci --no-audit --no-fund
+
+    - name: Cache repositories
+      uses: actions/cache@v4
+      with:
+        path: |
+          external/voyahchat-content
+          external/voyahchat-docs
+          external/voyahchat-install
+        key: ${{ needs.determine-strategy.outputs.cache-key }}
+        restore-keys: |
+          content-
+          docs-
+          install-
+          external-
+
+    - name: Setup external repositories
+      run: |
+        echo "Build type: ${{ needs.determine-strategy.outputs.build-type }}"
+        echo "Trigger repository: ${{ needs.determine-strategy.outputs.trigger-repo }}"
+        npm run setup:ci
+
+    - name: Create nginx logs directory
+      run: |
+        # Create necessary directories for nginx
+        sudo mkdir -p /tmp/nginx-logs
+        sudo chown -R $USER:$USER /tmp/nginx-logs
+
+    - name: Configure Git
+      run: git config --global advice.defaultBranchName false
+
+    - name: Run ESLint
+      run: npm run lint
+
+    - name: Run tests
+      run: npm test
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [determine-strategy, setup]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1  # Shallow clone to reduce bandwidth
+        lfs: false      # We'll pull LFS files selectively
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci --no-audit --no-fund
+
+    - name: Cache repositories
+      uses: actions/cache@v4
+      with:
+        path: |
+          external/voyahchat-content
+          external/voyahchat-docs
+          external/voyahchat-install
+        key: ${{ needs.determine-strategy.outputs.cache-key }}
+        restore-keys: |
+          content-
+          docs-
+          install-
+          external-
+
+    - name: Setup external repositories
+      run: |
+        echo "Build type: ${{ needs.determine-strategy.outputs.build-type }}"
+        echo "Trigger repository: ${{ needs.determine-strategy.outputs.trigger-repo }}"
+        npm run setup:ci
+
+    - name: Build project
+      run: npm run build
+
+    - name: Run performance benchmark
+      run: node lib/build/benchmark.js
+
+    - name: Build metrics
+      run: |
+        echo "## Build Metrics" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Type**: ${{ needs.determine-strategy.outputs.build-type }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Trigger Repository**: ${{ needs.determine-strategy.outputs.trigger-repo }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Cache Key**: ${{ needs.determine-strategy.outputs.cache-key }}" >> $GITHUB_STEP_SUMMARY
+
+        if [[ -d "external" ]]; then
+          echo "- **External Directory Size**: $(du -sh external | cut -f1)" >> $GITHUB_STEP_SUMMARY
+        fi
+
+        if [[ -d "site" ]]; then
+          echo "- **Build Output Size**: $(du -sh site | cut -f1)" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [determine-strategy, setup, lint-and-test, build]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1  # Shallow clone to reduce bandwidth
+        lfs: false      # We'll pull LFS files selectively
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci --no-audit --no-fund
+
+    - name: Cache repositories
+      uses: actions/cache@v4
+      with:
+        path: |
+          external/voyahchat-content
+          external/voyahchat-docs
+          external/voyahchat-install
+        key: ${{ needs.determine-strategy.outputs.cache-key }}
+        restore-keys: |
+          content-
+          docs-
+          install-
+          external-
+
+    - name: Setup external repositories
+      run: |
+        echo "Build type: ${{ needs.determine-strategy.outputs.build-type }}"
+        echo "Trigger repository: ${{ needs.determine-strategy.outputs.trigger-repo }}"
+        npm run setup:ci
+
+    - name: Build project
+      run: npm run build
+
     - name: Deploy to production
-      if: github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch'
       env:
         FTP_HOST: ${{ secrets.FTP_HOST }}
         FTP_PORT: ${{ secrets.FTP_PORT }}
@@ -173,23 +309,6 @@ jobs:
           echo "Commit SHA: ${{ github.event.client_payload.sha }}"
         fi
         npm run deploy
-
-
-    - name: Build metrics
-      if: always()
-      run: |
-        echo "## Build Metrics" >> $GITHUB_STEP_SUMMARY
-        echo "- **Build Type**: ${{ needs.determine-strategy.outputs.build-type }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Trigger Repository**: ${{ needs.determine-strategy.outputs.trigger-repo }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Cache Key**: ${{ needs.determine-strategy.outputs.cache-key }}" >> $GITHUB_STEP_SUMMARY
-
-        if [[ -d "external" ]]; then
-          echo "- **External Directory Size**: $(du -sh external | cut -f1)" >> $GITHUB_STEP_SUMMARY
-        fi
-
-        if [[ -d "site" ]]; then
-          echo "- **Build Output Size**: $(du -sh site | cut -f1)" >> $GITHUB_STEP_SUMMARY
-        fi
 
   # TODO: Uncomment when ready to enable security scanning
   # security-scan:

@@ -80,7 +80,7 @@ jobs:
       if: steps.cache-content.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
-        git clone --depth 1 https://github.com/voyahchat/voyahchat-content.git external/voyahchat-content
+        git clone https://github.com/voyahchat/voyahchat-content.git external/voyahchat-content
         cd external/voyahchat-content && git pull && git lfs pull
 
     - name: Cache voyahchat-docs
@@ -96,7 +96,7 @@ jobs:
       if: steps.cache-docs.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
-        git clone --depth 1 https://github.com/voyahchat/voyahchat-docs.git external/voyahchat-docs
+        git clone https://github.com/voyahchat/voyahchat-docs.git external/voyahchat-docs
         cd external/voyahchat-docs && git pull || echo "Git pull failed, continuing..." \
           && git lfs pull || echo "LFS pull failed, continuing without LFS files..."
 
@@ -113,7 +113,7 @@ jobs:
       if: steps.cache-install.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
-        git clone --depth 1 https://github.com/voyahchat/voyahchat-install.git \
+        git clone https://github.com/voyahchat/voyahchat-install.git \
           external/voyahchat-install || echo "Clone failed, creating empty directory..."
         if [ ! -d "external/voyahchat-install" ]; then
           mkdir -p external/voyahchat-install
@@ -134,7 +134,7 @@ jobs:
       if: steps.cache-adaptive.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
-        git clone --depth 1 https://github.com/vithar/adaptive-layout.git external/adaptive-layout
+        git clone https://github.com/vithar/adaptive-layout.git external/adaptive-layout
         cd external/adaptive-layout && git pull && git lfs pull
 
     # ============================================

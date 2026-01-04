@@ -5,7 +5,7 @@ on:
     # Every 5 days
     - cron: '0 0 */5 * *'
   # You can run manualy
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   update-cache:

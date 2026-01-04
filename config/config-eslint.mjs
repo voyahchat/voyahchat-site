@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import globals from 'globals';
+import yml from 'eslint-plugin-yml';
 
 export default [
     js.configs.recommended,
@@ -43,12 +44,16 @@ export default [
         },
     },
 
+    // YAML configuration
+    ...yml.configs['flat/recommended'],
+
     {
         ignores: [
             '.build/**',
             'site/**',
             'external/**',
             'config/config-eslint.mjs',
+            'config/sitemap.yml', // Exclude sitemap.yml from YAML linting due to custom format
         ],
     },
 ];

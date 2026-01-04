@@ -22,12 +22,14 @@
     "start": "npm --silent run build && npm --silent run serve",
     "stop": "pkill -f nginx || true",
     "test": "npm --silent run build && node node_modules/.bin/ava --config=config/config-ava.js",
-    "lint": "npx eslint lib config --fix --config config/config-eslint.mjs",
+    "lint": "npx eslint lib config .github --fix --config config/config-eslint.mjs",
     "deploy": "node lib/build/deploy.js",
     "benchmark": "node lib/build/benchmark.js"
   },
   "dependencies": {
     "@mongodb-js/zstd": "^7.0.0",
+    "acorn": "^8.15.0",
+    "astring": "^1.9.0",
     "autoprefixer": "^10.4.16",
     "ava": "^6.4.1",
     "baseline-browser-mapping": "^2.9.11",
@@ -38,6 +40,7 @@
     "eslint-import-resolver-node": "^0.3.9",
     "eslint-import-resolver-webpack": "^0.13.10",
     "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-yml": "^1.19.1",
     "globals": "^15.0.0",
     "husky": "^9.1.7",
     "js-yaml": "^4.1.0",

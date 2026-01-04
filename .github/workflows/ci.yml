@@ -2,183 +2,146 @@ name: Publish
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   repository_dispatch:
     types: [content-updated]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  determine-strategy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    outputs:
-      build-type: ${{ steps.strategy.outputs.build-type }}
-      cache-key: ${{ steps.strategy.outputs.cache-key }}
-      trigger-repo: ${{ steps.strategy.outputs.trigger-repo }}
 
     steps:
-    - name: Determine build strategy
-      id: strategy
-      run: |
-        if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
-          REPO="${{ github.event.client_payload.repository }}"
-          if [[ "$REPO" == *"voyahchat-content"* ]]; then
-            echo "build-type=content" >> $GITHUB_OUTPUT
-            echo "cache-key=content-${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
-            echo "trigger-repo=content" >> $GITHUB_OUTPUT
-          elif [[ "$REPO" == *"voyahchat-docs"* ]]; then
-            echo "build-type=docs" >> $GITHUB_OUTPUT
-            echo "cache-key=docs-${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
-            echo "trigger-repo=docs" >> $GITHUB_OUTPUT
-          elif [[ "$REPO" == *"voyahchat-install"* ]]; then
-            echo "build-type=install" >> $GITHUB_OUTPUT
-            echo "cache-key=install-${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
-            echo "trigger-repo=install" >> $GITHUB_OUTPUT
-          else
-            echo "build-type=full" >> $GITHUB_OUTPUT
-            echo "cache-key=full-${{ github.sha }}" >> $GITHUB_OUTPUT
-            echo "trigger-repo=unknown" >> $GITHUB_OUTPUT
-          fi
-        else
-          echo "build-type=full" >> $GITHUB_OUTPUT
-          echo "cache-key=full-${{ github.sha }}" >> $GITHUB_OUTPUT
-          echo "trigger-repo=site" >> $GITHUB_OUTPUT
-        fi
-
-        echo "Build type: ${{ steps.strategy.outputs.build-type }}"
-        echo "Cache key: ${{ steps.strategy.outputs.cache-key }}"
-        echo "Trigger repo: ${{ steps.strategy.outputs.trigger-repo }}"
-
-  setup:
-    runs-on: ubuntu-latest
-    needs: determine-strategy
-    outputs:
-      cache-hit: ${{ steps.cache.outputs.cache-hit }}
-
-    steps:
+    # ============================================
+    # PHASE 1: Checkout
+    # ============================================
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 1  # Shallow clone to reduce bandwidth
-        lfs: false      # We'll pull LFS files selectively
+        fetch-depth: 1
+        lfs: true
 
+    # ============================================
+    # PHASE 2: Node.js Setup
+    # ============================================
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22.x'
+        node-version: '24'
         cache: 'npm'
 
     - name: Install dependencies
-      run: |
-        npm ci --no-audit --no-fund
+      run: npm ci --no-audit --no-fund
 
-    - name: Cache repositories
-      id: cache
+    # ============================================
+    # PHASE 3: External Repositories
+    # ============================================
+    - name: Generate weekly timestamp
+      id: weekly
+      run: |
+        # Weekly rotation to keep cache alive (GitHub deletes after 7 days of non-use)
+        echo "value=$(date +%Y-W%V)" >> $GITHUB_OUTPUT
+
+    - name: Fetch repository hashes
+      id: hash
+      run: |
+        fetch_hash() {
+          local url=$1
+          local hash
+          hash=$(git ls-remote "$url" HEAD 2>/dev/null | cut -f1 | head -c7)
+          if [ -z "$hash" ]; then
+            echo "::warning::Failed to fetch hash from $url"
+            echo "unknown"
+          else
+            echo "$hash"
+          fi
+        }
+
+        echo "content=$(fetch_hash https://github.com/voyahchat/voyahchat-content.git)" >> $GITHUB_OUTPUT
+        echo "docs=$(fetch_hash https://github.com/voyahchat/voyahchat-docs.git)" >> $GITHUB_OUTPUT
+        echo "install=$(fetch_hash https://github.com/voyahchat/voyahchat-install.git)" >> $GITHUB_OUTPUT
+        echo "adaptive=$(fetch_hash https://github.com/vithar/adaptive-layout.git)" >> $GITHUB_OUTPUT
+
+    # ============================================
+    # PHASE 4: External Repositories with Cache
+    # ============================================
+    - name: Cache voyahchat-content
+      id: cache-content
       uses: actions/cache@v4
       with:
-        path: |
-          external/voyahchat-content
-          external/voyahchat-docs
-          external/voyahchat-install
-        key: ${{ needs.determine-strategy.outputs.cache-key }}
+        path: external/voyahchat-content
+        key: content-${{ steps.weekly.outputs.value }}-${{ steps.hash.outputs.content }}
         restore-keys: |
           content-
-          docs-
-          install-
-          external-
 
-    - name: Setup external repositories
+    - name: Clone voyahchat-content
+      if: steps.cache-content.outputs.cache-hit != 'true'
       run: |
-        echo "Build type: ${{ needs.determine-strategy.outputs.build-type }}"
-        echo "Trigger repository: ${{ needs.determine-strategy.outputs.trigger-repo }}"
+        mkdir -p external
+        git clone --depth 1 https://github.com/voyahchat/voyahchat-content.git external/voyahchat-content
+        cd external/voyahchat-content && git pull && git lfs pull
 
-        # Use smart CI setup that handles each repository individually
-        echo "Setting up repositories with smart caching..."
-        npm run setup:ci
-
-    - name: Verify repository setup
-      run: |
-        echo "External directory contents:"
-        ls -la external/ || echo "No external directory"
-
-        if [[ -d "external/voyahchat-content" ]]; then
-          echo "Content repo size:"
-          du -sh external/voyahchat-content
-        fi
-
-        if [[ -d "external/voyahchat-docs" ]]; then
-          echo "Docs repo size:"
-          du -sh external/voyahchat-docs
-        fi
-
-        if [[ -d "external/voyahchat-install" ]]; then
-          echo "Install repo size:"
-          du -sh external/voyahchat-install
-        fi
-
-    - name: Save cache
-      if: always()
+    - name: Cache voyahchat-docs
+      id: cache-docs
       uses: actions/cache@v4
       with:
-        path: |
-          external/voyahchat-content
-          external/voyahchat-docs
-          external/voyahchat-install
-        key: ${{ needs.determine-strategy.outputs.cache-key }}
-
-  lint-and-test:
-    runs-on: ubuntu-latest
-    needs: [determine-strategy, setup]
-
-    strategy:
-      matrix:
-        node-version: [22.x]
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1  # Shallow clone to reduce bandwidth
-        lfs: false      # We'll pull LFS files selectively
-
-    - name: Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: |
-        npm ci --no-audit --no-fund
-
-    - name: Cache repositories
-      uses: actions/cache@v4
-      with:
-        path: |
-          external/voyahchat-content
-          external/voyahchat-docs
-          external/voyahchat-install
-        key: ${{ needs.determine-strategy.outputs.cache-key }}
+        path: external/voyahchat-docs
+        key: docs-${{ steps.weekly.outputs.value }}-${{ steps.hash.outputs.docs }}
         restore-keys: |
-          content-
           docs-
+
+    - name: Clone voyahchat-docs
+      if: steps.cache-docs.outputs.cache-hit != 'true'
+      run: |
+        mkdir -p external
+        git clone --depth 1 https://github.com/voyahchat/voyahchat-docs.git external/voyahchat-docs
+        cd external/voyahchat-docs && git pull && git lfs pull
+
+    - name: Cache voyahchat-install
+      id: cache-install
+      uses: actions/cache@v4
+      with:
+        path: external/voyahchat-install
+        key: install-${{ steps.weekly.outputs.value }}-${{ steps.hash.outputs.install }}
+        restore-keys: |
           install-
-          external-
 
-    - name: Setup external repositories
+    - name: Clone voyahchat-install
+      if: steps.cache-install.outputs.cache-hit != 'true'
       run: |
-        echo "Build type: ${{ needs.determine-strategy.outputs.build-type }}"
-        echo "Trigger repository: ${{ needs.determine-strategy.outputs.trigger-repo }}"
-        npm run setup:ci
+        mkdir -p external
+        git clone --depth 1 https://github.com/voyahchat/voyahchat-install.git external/voyahchat-install
+        cd external/voyahchat-install && git pull && git lfs pull
 
-    - name: Create nginx logs directory
+    - name: Cache adaptive-layout
+      id: cache-adaptive
+      uses: actions/cache@v4
+      with:
+        path: external/adaptive-layout
+        key: adaptive-${{ steps.weekly.outputs.value }}-${{ steps.hash.outputs.adaptive }}
+        restore-keys: |
+          adaptive-
+
+    - name: Clone adaptive-layout
+      if: steps.cache-adaptive.outputs.cache-hit != 'true'
       run: |
-        # Create necessary directories for nginx
-        sudo mkdir -p /tmp/nginx-logs
-        sudo chown -R $USER:$USER /tmp/nginx-logs
+        mkdir -p external
+        git clone --depth 1 https://github.com/vithar/adaptive-layout.git external/adaptive-layout
+        cd external/adaptive-layout && git pull && git lfs pull
 
+    # ============================================
+    # PHASE 5: Quality Checks
+    # ============================================
     - name: Configure Git
       run: git config --global advice.defaultBranchName false
+
+    - name: Setup CI environment
+      run: npm run setup:ci
 
     - name: Run ESLint
       run: npm run lint
@@ -186,193 +149,43 @@ jobs:
     - name: Run tests
       run: npm test
 
-  build:
-    runs-on: ubuntu-latest
-    needs: [determine-strategy, setup]
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1  # Shallow clone to reduce bandwidth
-        lfs: false      # We'll pull LFS files selectively
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22.x'
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: |
-        npm ci --no-audit --no-fund
-
-    - name: Cache repositories
-      uses: actions/cache@v4
-      with:
-        path: |
-          external/voyahchat-content
-          external/voyahchat-docs
-          external/voyahchat-install
-        key: ${{ needs.determine-strategy.outputs.cache-key }}
-        restore-keys: |
-          content-
-          docs-
-          install-
-          external-
-
-    - name: Setup external repositories
-      run: |
-        echo "Build type: ${{ needs.determine-strategy.outputs.build-type }}"
-        echo "Trigger repository: ${{ needs.determine-strategy.outputs.trigger-repo }}"
-        npm run setup:ci
-
-    - name: Build project
-      run: npm run build
-
-    - name: Run performance benchmark
-      run: node lib/build/benchmark.js
-
-    - name: Build metrics
-      run: |
-        echo "## Build Metrics" >> $GITHUB_STEP_SUMMARY
-        echo "- **Build Type**: ${{ needs.determine-strategy.outputs.build-type }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Trigger Repository**: ${{ needs.determine-strategy.outputs.trigger-repo }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Cache Key**: ${{ needs.determine-strategy.outputs.cache-key }}" >> $GITHUB_STEP_SUMMARY
-
-        if [[ -d "external" ]]; then
-          echo "- **External Directory Size**: $(du -sh external | cut -f1)" >> $GITHUB_STEP_SUMMARY
-        fi
-
-        if [[ -d "site" ]]; then
-          echo "- **Build Output Size**: $(du -sh site | cut -f1)" >> $GITHUB_STEP_SUMMARY
-        fi
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [determine-strategy, setup, lint-and-test, build]
-    if: github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1  # Shallow clone to reduce bandwidth
-        lfs: false      # We'll pull LFS files selectively
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22.x'
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: |
-        npm ci --no-audit --no-fund
-
-    - name: Cache repositories
-      uses: actions/cache@v4
-      with:
-        path: |
-          external/voyahchat-content
-          external/voyahchat-docs
-          external/voyahchat-install
-        key: ${{ needs.determine-strategy.outputs.cache-key }}
-        restore-keys: |
-          content-
-          docs-
-          install-
-          external-
-
-    - name: Setup external repositories
-      run: |
-        echo "Build type: ${{ needs.determine-strategy.outputs.build-type }}"
-        echo "Trigger repository: ${{ needs.determine-strategy.outputs.trigger-repo }}"
-        npm run setup:ci
-
-    - name: Build project
+    # ============================================
+    # PHASE 6: Build and Deploy
+    # ============================================
+    - name: Build site
       run: npm run build
 
     - name: Deploy to production
+      if: success() && (github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch')
       env:
         FTP_HOST: ${{ secrets.FTP_HOST }}
-        FTP_PORT: ${{ secrets.FTP_PORT }}
         FTP_USER: ${{ secrets.FTP_USER }}
         FTP_PASS: ${{ secrets.FTP_PASS }}
         FTP_PATH: ${{ secrets.FTP_PATH }}
+      run: npm run deploy
+
+    # ============================================
+    # PHASE 7: Metrics
+    # ============================================
+    - name: Log cache status
+      if: always()
       run: |
-        echo "Deploying to production environment"
-        echo "Build type: ${{ needs.determine-strategy.outputs.build-type }}"
-        echo "Triggered by: ${{ github.event_name }}"
-        if [ "${{ github.event_name }}" == "repository_dispatch" ]; then
-          echo "Content repository: ${{ github.event.client_payload.repository }}"
-          echo "Commit SHA: ${{ github.event.client_payload.sha }}"
+        echo "## Cache Status" >> $GITHUB_STEP_SUMMARY
+        echo "| Repository | Cache Hit |" >> $GITHUB_STEP_SUMMARY
+        echo "|------------|-----------|" >> $GITHUB_STEP_SUMMARY
+        echo "| voyahchat-content | ${{ steps.cache-content.outputs.cache-hit }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| voyahchat-docs | ${{ steps.cache-docs.outputs.cache-hit }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| voyahchat-install | ${{ steps.cache-install.outputs.cache-hit }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| adaptive-layout | ${{ steps.cache-adaptive.outputs.cache-hit }} |" >> $GITHUB_STEP_SUMMARY
+
+    - name: Build metrics
+      if: always()
+      run: |
+        echo "## Build Metrics" >> $GITHUB_STEP_SUMMARY
+        echo "- **Triggered by**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        if [[ -d "external" ]]; then
+          echo "- **External Directory Size**: $(du -sh external | cut -f1)" >> $GITHUB_STEP_SUMMARY
         fi
-        npm run deploy
-
-  # TODO: Uncomment when ready to enable security scanning
-  # security-scan:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v4
-  #
-  #   - name: Run security audit
-  #     run: npm audit --audit-level moderate
-  #
-  #   - name: Run dependency check
-  #     run: npx audit-ci --moderate
-
-  # TODO: Uncomment when ready to enable performance monitoring
-  # performance-monitoring:
-  #   runs-on: ubuntu-latest
-  #   needs: build-and-test
-  #   if: github.event_name == 'pull_request'
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v4
-  #
-  #   - name: Setup Node.js
-  #     uses: actions/setup-node@v4
-  #     with:
-  #       node-version: '22.x'
-  #       cache: 'npm'
-  #
-  #   - name: Install dependencies
-  #     run: npm ci
-  #
-  #   - name: Run benchmark
-  #     run: node lib/build/benchmark.js
-  #
-  #   - name: Compare with baseline
-  #     run: |
-  #       node lib/build/benchmark.js --compare
-  #       # Add performance regression detection here
-
-  # TODO: Uncomment when ready to enable artifact publishing
-  # publish-artifacts:
-  #   runs-on: ubuntu-latest
-  #   needs: build-and-test
-  #   if: github.ref == 'refs/heads/main'
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v4
-  #
-  #   - name: Setup Node.js
-  #     uses: actions/setup-node@v4
-  #     with:
-  #       node-version: '22.x'
-  #       cache: 'npm'
-  #
-  #   - name: Install dependencies
-  #     run: npm ci
-  #
-  #   - name: Build project
-  #     run: npm run build
-  #
-  #   - name: Upload build artifacts
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: build-files
-  #       path: site/
-  #       retention-days: 30
+        if [[ -d "site" ]]; then
+          echo "- **Build Output Size**: $(du -sh site | cut -f1)" >> $GITHUB_STEP_SUMMARY
+        fi

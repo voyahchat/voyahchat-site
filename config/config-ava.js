@@ -23,4 +23,9 @@ module.exports = {
     serial: false, // Allow parallel execution but with warning tracking per test
     babel: false,  // No babel transformation needed
     compileEnhancements: false, // No enhancements needed
+
+    // Set environment variables for all tests
+    environmentVariables: {
+        NODE_ENV: 'test',
+    },
 };

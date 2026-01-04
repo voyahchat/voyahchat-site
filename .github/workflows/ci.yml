@@ -26,7 +26,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 1
         lfs: true
 
     # ============================================
@@ -100,15 +99,20 @@ jobs:
           docs-
 
     - name: Clone voyahchat-docs
+      id: clone-docs
       if: steps.cache-docs.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
         git clone https://github.com/voyahchat/voyahchat-docs.git external/voyahchat-docs
-        cd external/voyahchat-docs && git pull || echo "Git pull failed, continuing..." \
-          && git lfs pull || echo "LFS pull failed, continuing without LFS files..."
+        cd external/voyahchat-docs
+        git pull || echo "Git pull failed, continuing..."
+        git lfs pull
+        echo "lfs_success=$?" >> $GITHUB_OUTPUT
 
     - name: Save voyahchat-docs cache
-      if: steps.cache-docs.outputs.cache-hit != 'true'
+      if: |
+        steps.cache-docs.outputs.cache-hit != 'true' &&
+        steps.clone-docs.outputs.lfs_success == '0'
       uses: actions/cache/save@v4
       with:
         path: external/voyahchat-docs
@@ -124,6 +128,7 @@ jobs:
           install-
 
     - name: Clone voyahchat-install
+      id: clone-install
       if: steps.cache-install.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
@@ -132,11 +137,15 @@ jobs:
         if [ ! -d "external/voyahchat-install" ]; then
           mkdir -p external/voyahchat-install
         fi
-        cd external/voyahchat-install && git pull || echo "Git pull failed, continuing..." \
-          && git lfs pull || echo "LFS pull failed, continuing without LFS files..."
+        cd external/voyahchat-install
+        git pull || echo "Git pull failed, continuing..."
+        git lfs pull
+        echo "lfs_success=$?" >> $GITHUB_OUTPUT
 
     - name: Save voyahchat-install cache
-      if: steps.cache-install.outputs.cache-hit != 'true'
+      if: |
+        steps.cache-install.outputs.cache-hit != 'true' &&
+        steps.clone-install.outputs.lfs_success == '0'
       uses: actions/cache/save@v4
       with:
         path: external/voyahchat-install

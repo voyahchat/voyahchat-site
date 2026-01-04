@@ -320,6 +320,10 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L,E=I
     Header set Content-Type "application/zip"
 </FilesMatch>
 
+<FilesMatch "\.ini$">
+    Header set Content-Type "text/plain"
+</FilesMatch>
+
 # Hash-prefixed image files (_i*)
 <FilesMatch "^_i[a-f0-9]+$">
     Header always set Cache-Control "public,immutable"
@@ -349,8 +353,8 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L,E=I
     Header always set Cache-Control "public,immutable"
 </FilesMatch>
 
-# PDF, ZIP, XML
-<FilesMatch "\.(pdf|zip|xml)(\.zst|\.br|\.gz)?$">
+# PDF, ZIP, XML, INI
+<FilesMatch "\.(pdf|zip|xml|ini)(\.zst|\.br|\.gz)?$">
     Header always set Cache-Control "public,no-cache"
 </FilesMatch>
 
@@ -366,7 +370,7 @@ ExpiresActive On
     ExpiresDefault "access plus 10 years"
 </FilesMatch>
 
-# PDF, ZIP, XML - 1 hour
-<FilesMatch "\.(pdf|zip|xml)(\.zst|\.br|\.gz)?$">
+# PDF, ZIP, XML, INI - 1 hour
+<FilesMatch "\.(pdf|zip|xml|ini)(\.zst|\.br|\.gz)?$">
     ExpiresDefault "access plus 1 hour"
 </FilesMatch>

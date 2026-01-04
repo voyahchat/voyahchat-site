@@ -47,7 +47,7 @@ http {
     # Detect hashed static files for cache control
     map $uri $is_hashed_static {
         default                                 0;
-        ~*\.(css|js|svg|jpg|jpeg|png|gif|ico)$  1;
+        ~*\.(css|js|svg|jpg|jpeg|png|gif|ico|ini)$  1;
         ~*^/_[cjs]                              1;
     }
 
@@ -184,8 +184,8 @@ http {
             add_header Referrer-Policy "strict-origin-when-cross-origin" always;
         }
 
-        # Non-compressible files (images, PDF, ZIP)
-        location ~* \.(jpg|jpeg|png|gif|ico|pdf|zip)$ {
+        # Non-compressible files (images, PDF, ZIP, INI)
+        location ~* \.(jpg|jpeg|png|gif|ico|pdf|zip|ini)$ {
             try_files $uri =404;
 
             expires $expires_time;

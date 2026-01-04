@@ -100,7 +100,8 @@ jobs:
       run: |
         mkdir -p external
         git clone --depth 1 https://github.com/voyahchat/voyahchat-docs.git external/voyahchat-docs
-        cd external/voyahchat-docs && git pull && git lfs pull
+        cd external/voyahchat-docs && git pull || echo "Git pull failed, continuing..." \
+          && git lfs pull || echo "LFS pull failed, continuing without LFS files..."
 
     - name: Cache voyahchat-install
       id: cache-install
@@ -115,8 +116,13 @@ jobs:
       if: steps.cache-install.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
-        git clone --depth 1 https://github.com/voyahchat/voyahchat-install.git external/voyahchat-install
-        cd external/voyahchat-install && git pull && git lfs pull
+        git clone --depth 1 https://github.com/voyahchat/voyahchat-install.git \
+          external/voyahchat-install || echo "Clone failed, creating empty directory..."
+        if [ ! -d "external/voyahchat-install" ]; then
+          mkdir -p external/voyahchat-install
+        fi
+        cd external/voyahchat-install && git pull || echo "Git pull failed, continuing..." \
+          && git lfs pull || echo "LFS pull failed, continuing without LFS files..."
 
     - name: Cache adaptive-layout
       id: cache-adaptive

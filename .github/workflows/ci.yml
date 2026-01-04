@@ -73,8 +73,6 @@ jobs:
       with:
         path: external/voyahchat-content
         key: content-${{ steps.hash.outputs.content }}
-        restore-keys: |
-          content-
 
     - name: Clone voyahchat-content
       if: steps.cache-content.outputs.cache-hit != 'true'
@@ -96,8 +94,6 @@ jobs:
       with:
         path: external/voyahchat-docs
         key: docs-${{ steps.hash.outputs.docs }}
-        restore-keys: |
-          docs-
 
     - name: Clone voyahchat-docs
       id: clone-docs
@@ -125,8 +121,6 @@ jobs:
       with:
         path: external/voyahchat-install
         key: install-${{ steps.hash.outputs.install }}
-        restore-keys: |
-          install-
 
     - name: Clone voyahchat-install
       id: clone-install
@@ -158,8 +152,6 @@ jobs:
       with:
         path: external/adaptive-layout
         key: adaptive-${{ steps.hash.outputs.adaptive }}
-        restore-keys: |
-          adaptive-
 
     - name: Clone adaptive-layout
       if: steps.cache-adaptive.outputs.cache-hit != 'true'

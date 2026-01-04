@@ -67,9 +67,9 @@ jobs:
     # ============================================
     # PHASE 4: External Repositories with Cache
     # ============================================
-    - name: Cache voyahchat-content
+    - name: Restore voyahchat-content cache
       id: cache-content
-      uses: actions/cache@v4
+      uses: actions/cache/restore@v4
       with:
         path: external/voyahchat-content
         key: content-${{ steps.hash.outputs.content }}
@@ -83,9 +83,16 @@ jobs:
         git clone https://github.com/voyahchat/voyahchat-content.git external/voyahchat-content
         cd external/voyahchat-content && git pull && git lfs pull
 
-    - name: Cache voyahchat-docs
+    - name: Save voyahchat-content cache
+      if: steps.cache-content.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: external/voyahchat-content
+        key: content-${{ steps.hash.outputs.content }}
+
+    - name: Restore voyahchat-docs cache
       id: cache-docs
-      uses: actions/cache@v4
+      uses: actions/cache/restore@v4
       with:
         path: external/voyahchat-docs
         key: docs-${{ steps.hash.outputs.docs }}
@@ -100,9 +107,16 @@ jobs:
         cd external/voyahchat-docs && git pull || echo "Git pull failed, continuing..." \
           && git lfs pull || echo "LFS pull failed, continuing without LFS files..."
 
-    - name: Cache voyahchat-install
+    - name: Save voyahchat-docs cache
+      if: steps.cache-docs.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: external/voyahchat-docs
+        key: docs-${{ steps.hash.outputs.docs }}
+
+    - name: Restore voyahchat-install cache
       id: cache-install
-      uses: actions/cache@v4
+      uses: actions/cache/restore@v4
       with:
         path: external/voyahchat-install
         key: install-${{ steps.hash.outputs.install }}
@@ -121,9 +135,16 @@ jobs:
         cd external/voyahchat-install && git pull || echo "Git pull failed, continuing..." \
           && git lfs pull || echo "LFS pull failed, continuing without LFS files..."
 
-    - name: Cache adaptive-layout
+    - name: Save voyahchat-install cache
+      if: steps.cache-install.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: external/voyahchat-install
+        key: install-${{ steps.hash.outputs.install }}
+
+    - name: Restore adaptive-layout cache
       id: cache-adaptive
-      uses: actions/cache@v4
+      uses: actions/cache/restore@v4
       with:
         path: external/adaptive-layout
         key: adaptive-${{ steps.hash.outputs.adaptive }}
@@ -136,6 +157,13 @@ jobs:
         mkdir -p external
         git clone https://github.com/vithar/adaptive-layout.git external/adaptive-layout
         cd external/adaptive-layout && git pull && git lfs pull
+
+    - name: Save adaptive-layout cache
+      if: steps.cache-adaptive.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: external/adaptive-layout
+        key: adaptive-${{ steps.hash.outputs.adaptive }}
 
     # ============================================
     # PHASE 5: Quality Checks

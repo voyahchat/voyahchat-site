@@ -7,6 +7,9 @@ on:
     branches: [main]
   repository_dispatch:
     types: [content-updated]
+  schedule:
+    # Run every 6 days at 3:00 AM UTC to keep cache alive
+    - cron: '0 3 */6 * *'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -41,12 +44,6 @@ jobs:
     # ============================================
     # PHASE 3: External Repositories
     # ============================================
-    - name: Generate weekly timestamp
-      id: weekly
-      run: |
-        # Weekly rotation to keep cache alive (GitHub deletes after 7 days of non-use)
-        echo "value=$(date +%Y-W%V)" >> $GITHUB_OUTPUT
-
     - name: Fetch repository hashes
       id: hash
       run: |
@@ -75,7 +72,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: external/voyahchat-content
-        key: content-${{ steps.weekly.outputs.value }}-${{ steps.hash.outputs.content }}
+        key: content-${{ steps.hash.outputs.content }}
         restore-keys: |
           content-
 
@@ -91,7 +88,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: external/voyahchat-docs
-        key: docs-${{ steps.weekly.outputs.value }}-${{ steps.hash.outputs.docs }}
+        key: docs-${{ steps.hash.outputs.docs }}
         restore-keys: |
           docs-
 
@@ -108,7 +105,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: external/voyahchat-install
-        key: install-${{ steps.weekly.outputs.value }}-${{ steps.hash.outputs.install }}
+        key: install-${{ steps.hash.outputs.install }}
         restore-keys: |
           install-
 
@@ -129,7 +126,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: external/adaptive-layout
-        key: adaptive-${{ steps.weekly.outputs.value }}-${{ steps.hash.outputs.adaptive }}
+        key: adaptive-${{ steps.hash.outputs.adaptive }}
         restore-keys: |
           adaptive-
 
@@ -162,7 +159,10 @@ jobs:
       run: npm run build
 
     - name: Deploy to production
-      if: success() && (github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch')
+      if: |
+        success() &&
+        github.event_name != 'schedule' &&
+        (github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch')
       env:
         FTP_HOST: ${{ secrets.FTP_HOST }}
         FTP_USER: ${{ secrets.FTP_USER }}

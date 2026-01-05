@@ -11,7 +11,7 @@
 # Code Style
 - Follow JavaScript Style Guide from config/config-eslint.mjs
 - End files with a single empty line
-- Run `npm run lint` before commits; never use `eslint-disable`
+- Run `npm run lint` before task is done; never use `eslint-disable`
 
 # Development & Build
 - Use NPM scripts exclusively; they should be silent on success

@@ -9,16 +9,10 @@
 <meta property="og:type" content="article">
 
 <body class="page">
-    {% include "blocks/header/header.njk" %}
-
-    {% include "blocks/menu/menu.njk" %}
-
-    <div class="page__main">
+    {% include "blocks/header/header.njk" %}{% include "blocks/menu/menu.njk" %}<div class="page__main">
         <div class="article page__content">
             {{ content }}
-        </div>
-
-        {% include "blocks/footer/footer.njk" %}
+        </div>{% include "blocks/footer/footer.njk" %}
     </div>
 
     <div class="page__side">

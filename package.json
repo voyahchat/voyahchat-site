@@ -20,7 +20,7 @@
     "build:parallel": "concurrently --silent --kill-others-on-fail \"npm --silent run build:css\" \"npm --silent run build:js\" \"npm --silent run build:nginx\" \"npm --silent run build:templates\"",
     "serve": "npm --silent run stop && mkdir -p /tmp/nginx-logs && nginx -c $(pwd)/.build/nginx.conf",
     "start": "npm --silent run build && npm --silent run serve",
-    "stop": "pkill -f nginx || true",
+    "stop": "pkill -KILL -f nginx || true",
     "test": "npm --silent run build && node node_modules/.bin/ava --config=config/config-ava.js",
     "lint": "npx eslint lib config .github --fix --config config/config-eslint.mjs",
     "deploy": "node lib/build/deploy.js",

@@ -24,6 +24,7 @@
     "test": "npm --silent run build && node node_modules/.bin/ava --config=config/config-ava.js",
     "lint": "npx eslint lib config .github --fix --config config/config-eslint.mjs",
     "deploy": "node lib/build/deploy.js",
+    "deploy-fix-timestamps": "node lib/build/deploy-fix-timestamps.js",
     "benchmark": "node lib/build/benchmark.js"
   },
   "dependencies": {

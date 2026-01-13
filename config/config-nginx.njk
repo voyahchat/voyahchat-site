@@ -166,8 +166,8 @@ http {
         location ~ ^/_i([a-f0-9]+)$ {
             set $hash $1;
 
-            # Try files in order: AVIF (if supported) -> WebP (if supported) -> PNG -> JPG -> GIF -> ICO -> SVG
-            try_files /avif/$hash.avif /webp/$hash.webp /$hash.png /$hash.jpg /$hash.gif /$hash.ico /$hash.svg =404;
+            # Try files in order: AVIF (if supported) -> WebP (if supported) -> PNG -> JPG -> SVG -> GIF -> ICO
+            try_files /avif/$hash.avif /webp/$hash.webp /png/$hash.png /jpg/$hash.jpg /svg/$hash.svg /$hash.gif /$hash.ico =404;
 
             expires 10y;
             add_header Cache-Control "public,immutable" always;
@@ -193,5 +193,3 @@ http {
         }
     }
 }
-
-

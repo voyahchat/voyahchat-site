@@ -25,6 +25,9 @@
     "lint": "npx eslint lib config .github --fix --config config/config-eslint.mjs",
     "deploy": "node lib/build/deploy.js",
     "deploy-fix-timestamps": "node lib/build/deploy-fix-timestamps.js",
+    "telegram:auth": "node lib/telegram/auth.js",
+    "telegram:auth-status": "node lib/telegram/auth.js --status",
+    "telegram:download": "node lib/telegram/download.js",
     "benchmark": "node lib/build/benchmark.js"
   },
   "dependencies": {
@@ -52,6 +55,7 @@
     "postcss-import": "^16.1.1",
     "postcss-url": "^10.1.3",
     "terser": "^5.44.0",
+    "telegram": "^2.26.22",
     "vnu-jar": "^24.10.17"
   }
 }

@@ -1,0 +1,167 @@
+# Telegram configuration for VoyahChat downloader
+
+# Chat username (without @)
+chat: voyahchat
+
+# Download settings with sensible defaults
+download:
+  # Retry configuration
+  maxRetries: 10
+  retryDelayBaseMs: 2000
+  retryDelayMaxMs: 60000
+  retryJitterMs: 1000
+
+  # Timeout configuration
+  timeoutBaseMs: 60000
+  timeoutPerMbMs: 30000
+  timeoutMaxMs: 600000
+
+  # API configuration
+  connectionRetries: 5
+  connectionTimeoutMs: 30000
+  messagesPerRequest: 100
+  rateLimitDelayMs: 1000
+
+# Sections to download
+# Each section needs:
+# - name: Display name
+# - slug: URL-friendly identifier
+# - topicId: Telegram topic ID (if using topics)
+# - pinnedMessageId: ID of the pinned message with links (optional - if not provided, download entire topic)
+sections:
+  - name: "Компания E.N.Cars, заказ авто, сервис, запчасти"
+    slug: encars
+    topicId: 19041
+    pinnedMessageId: 748047
+
+  - name: "Постановка на учёт"
+    slug: registration
+    topicId: 8977
+    pinnedMessageId: 747976
+
+  - name: "МА | WeСhat/eSender | Lantu приложение"
+    slug: wechat-esender-lantu
+    topicId: 177128
+    pinnedMessageId: 286863
+
+  - name: "Прошивка | SIM"
+    slug: firmware-sim
+    topicId: 11800
+    pinnedMessageId: 276445
+
+  - name: "Приложения в машине"
+    slug: car-apps
+    topicId: 558068
+    pinnedMessageId: 558073
+
+  - name: "VoyahTweaks | Smart Assist & AppManager"
+    slug: voyahtweaks
+    topicId: 413159
+    pinnedMessageId: 413297
+
+  - name: "Cunba | Русификация"
+    slug: cunba-russian
+    topicId: 67145
+    pinnedMessageId: 374690
+
+  - name: "Voyah Free"
+    slug: voyah-free
+    topicId: 30944
+    pinnedMessageId: 629096
+
+  - name: "Voyah Free+"
+    slug: voyah-free-plus
+    topicId: 1020935
+    pinnedMessageId: 1020936
+
+  - name: "Voyah Dreamer"
+    slug: voyah-dreamer
+    topicId: 44496
+    pinnedMessageId: 138607
+
+  - name: "Voyah Passion"
+    slug: voyah-passion
+    topicId: 72117
+    pinnedMessageId: 520660
+
+  - name: "Voyah Courage"
+    slug: voyah-courage
+    topicId: 601095
+    pinnedMessageId: 601096
+
+  - name: "Voyah Taishan"
+    slug: voyah-taishan
+    topicId: 1101631
+    pinnedMessageId: 1101632
+
+  - name: "Шины | Диски"
+    slug: tyres-wheels
+    topicId: 44997
+    pinnedMessageId: 705871
+
+  - name: "Зарядка и батарея"
+    slug: charging-battery
+    topicId: 11517
+    pinnedMessageId: 747980
+
+  - name: "Автозвук"
+    slug: car-audio
+    topicId: 578617
+    pinnedMessageId: 578633
+
+  - name: "Удалённое управление"
+    slug: remote-control
+    topicId: 792213
+    pinnedMessageId: 792214
+
+  - name: "Обслуживание и ремонт"
+    slug: service-repair
+    topicId: 8975
+    pinnedMessageId: 747948
+
+  - name: "Запчасти | Аксессуары"
+    slug: parts-accessories
+    topicId: 8976
+    pinnedMessageId: 409259
+
+  - name: "Тюнинг | Детейлинг | Уход"
+    slug: tuning-detailing
+    topicId: 44996
+    pinnedMessageId: 748005
+
+  - name: "Барахолка"
+    slug: marketplace
+    topicId: 43927
+    pinnedMessageId: 43930
+
+  - name: "Флудилка"
+    slug: flood
+    topicId: 1
+    pinnedMessageId: 527150
+
+  # Sections without pinned messages - download entire topic
+  - name: "FAQ | ЧаВо | Частые вопросы и ответы"
+    slug: faq
+    topicId: 32898
+
+  - name: "Important Messages"
+    slug: important-messages
+    topicId: 177681
+
+  - name: "Another Topic"
+    slug: another-topic
+    topicId: 267523
+
+  - name: "Yet Another Topic"
+    slug: yet-another-topic
+    topicId: 8978
+
+  - name: "Pinned with Replies"
+    slug: pinned-replies
+    topicId: 1159005
+    replyToId: 1159007
+
+  - name: "Another Pinned"
+    slug: another-pinned
+    topicId: 1020935
+    replyToId: 1020936

@@ -1,8 +1,12 @@
 .assets
 .build
-config/ftp.yml
+
+config/auth-ftp.yml
+config/auth-telegram.yml
 external
 site
+telegram/index.json
+telegram/sections
 
 node_modules
 .vscode

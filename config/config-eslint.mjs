@@ -54,6 +54,7 @@ export default [
             'external/**',
             'config/config-eslint.mjs',
             'config/sitemap.yml', // Exclude sitemap.yml from YAML linting due to custom format
+            'config/auth-telegram.yml', // Exclude auth-telegram.yml from YAML linting due to long session string
         ],
     },
 ];

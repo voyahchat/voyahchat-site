@@ -1,8 +1,5 @@
 # Telegram configuration for VoyahChat downloader
 
-# Chat username (without @)
-chat: voyahchat
-
 # Download settings with sensible defaults
 download:
   # Retry configuration
@@ -22,13 +19,10 @@ download:
   messagesPerRequest: 100
   rateLimitDelayMs: 1000
 
-# Sections to download
-# Each section needs:
-# - name: Display name
-# - slug: URL-friendly identifier
-# - topicId: Telegram topic ID (if using topics)
-# - pinnedMessageId: ID of the pinned message with links (optional - if not provided, download entire topic)
-sections:
+# Public supergroup with topics
+chat:
+  name: voyahchat
+  sections:
   - name: "Компания E.N.Cars, заказ авто, сервис, запчасти"
     slug: encars
     topicId: 19041
@@ -144,24 +138,8 @@ sections:
     slug: faq
     topicId: 32898
 
-  - name: "Important Messages"
-    slug: important-messages
-    topicId: 177681
-
-  - name: "Another Topic"
-    slug: another-topic
-    topicId: 267523
-
-  - name: "Yet Another Topic"
-    slug: yet-another-topic
-    topicId: 8978
-
-  - name: "Pinned with Replies"
-    slug: pinned-replies
-    topicId: 1159005
-    replyToId: 1159007
-
-  - name: "Another Pinned"
-    slug: another-pinned
-    topicId: 1020935
-    replyToId: 1020936
+# Private channel configuration
+channel:
+  name: "Private Channel"
+  slug: "private-channel"
+  inviteHash: "lUKvryEEEQk2YmMy"

@@ -13,9 +13,14 @@
 .page__main {
     position: relative;
 
-    padding-bottom: calc(50px + 6rem);
+    padding-bottom:  6rem;
 
     background: #fff;
+}
+
+/* Hide aside in non-3-column modes (ads removed, aside reserved for future use) */
+.page__aside {
+    display: none;
 }
 
 .page__content {
@@ -26,7 +31,7 @@
 
 .page__foot {
     position: absolute;
-    bottom: 50px;
+    bottom: 0; /* 50px */
     left: 50%;
 
     transform: translateX(-50%);
@@ -34,7 +39,7 @@
 
 @media (min-width: 1000px) {
     .page__main {
-        padding-bottom: calc(90px + 6rem);
+        padding-bottom: 6rem;
     }
 
     .page__menu {
@@ -43,13 +48,17 @@
     }
 
     .page:not(.page-index) .page__foot {
-        bottom: 90px;
+        bottom: 0; /* 90px */
     }
 }
 
 @media (min-width: 80rem) {
     .page__main {
         padding-bottom: 7rem;
+    }
+
+    .page__aside {
+        display: block;
     }
 
     .page:not(.page-index) .page__foot {

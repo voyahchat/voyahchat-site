@@ -15,6 +15,5 @@ module.exports = [
   'video',
 
   'aside',
-  'adv',
   'footer',
 ];

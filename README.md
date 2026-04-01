@@ -1120,3 +1120,4 @@ All build scripts generate statistics files in `.build/` directory using a unifi
 - `site/timestamps.json` - All file timestamps for FTP deployment optimization
 
 Each file entry contains `source`, `size`, and script-specific `metadata`. Build-level metadata includes generation timestamp.
+

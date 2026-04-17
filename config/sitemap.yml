@@ -33,6 +33,8 @@ sitemap:
 
   - Common [/common, common/index.md]
     - Улучшение опыта использования [enhance, common/enhance.md]
+    - Pasiqo [pasiqo, common/pasiqo.md]
+      - Установка [install, common/pasiqo_install.md]
     - VoyahTweaks [tweaks, common/tweaks.md]
       - Возможности [features, common/tweaks_features.md]
       - Настройки [settings, common/tweaks_settings.md]

@@ -72,35 +72,47 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: external/voyahchat-content
-        key: content-${{ steps.hash.outputs.content }}
+        key: content-v2-${{ steps.hash.outputs.content }}
+        restore-keys: |
+          content-v2-
+          content-
 
     - name: Clone voyahchat-content
       if: steps.cache-content.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
-        git clone https://github.com/voyahchat/voyahchat-content.git external/voyahchat-content
-        cd external/voyahchat-content && git pull && git lfs pull
+        if [ ! -d "external/voyahchat-content/.git" ]; then
+          git clone https://github.com/voyahchat/voyahchat-content.git external/voyahchat-content
+        fi
+        cd external/voyahchat-content
+        git pull || echo "Git pull failed"
+        git lfs pull
 
     - name: Save voyahchat-content cache
       if: steps.cache-content.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
       with:
         path: external/voyahchat-content
-        key: content-${{ steps.hash.outputs.content }}
+        key: content-v2-${{ steps.hash.outputs.content }}
 
     - name: Restore voyahchat-docs cache
       id: cache-docs
       uses: actions/cache/restore@v4
       with:
         path: external/voyahchat-docs
-        key: docs-${{ steps.hash.outputs.docs }}
+        key: docs-v2-${{ steps.hash.outputs.docs }}
+        restore-keys: |
+          docs-v2-
+          docs-
 
     - name: Clone voyahchat-docs
       id: clone-docs
       if: steps.cache-docs.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
-        git clone https://github.com/voyahchat/voyahchat-docs.git external/voyahchat-docs
+        if [ ! -d "external/voyahchat-docs/.git" ]; then
+          git clone https://github.com/voyahchat/voyahchat-docs.git external/voyahchat-docs
+        fi
         cd external/voyahchat-docs
         git pull || echo "Git pull failed, continuing..."
         git lfs pull
@@ -113,25 +125,27 @@ jobs:
       uses: actions/cache/save@v4
       with:
         path: external/voyahchat-docs
-        key: docs-${{ steps.hash.outputs.docs }}
+        key: docs-v2-${{ steps.hash.outputs.docs }}
 
     - name: Restore voyahchat-install cache
       id: cache-install
       uses: actions/cache/restore@v4
       with:
         path: external/voyahchat-install
-        key: install-${{ steps.hash.outputs.install }}
+        key: install-v2-${{ steps.hash.outputs.install }}
+        restore-keys: |
+          install-v2-
+          install-
 
     - name: Clone voyahchat-install
       id: clone-install
       if: steps.cache-install.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
-        git clone https://github.com/voyahchat/voyahchat-install.git \
-          external/voyahchat-install || echo "Clone failed, creating empty directory..."
-        if [ ! -d "external/voyahchat-install" ]; then
-          mkdir -p external/voyahchat-install
+        if [ ! -d "external/voyahchat-install/.git" ]; then
+          git clone https://github.com/voyahchat/voyahchat-install.git external/voyahchat-install || true
         fi
+        mkdir -p external/voyahchat-install
         cd external/voyahchat-install
         git pull || echo "Git pull failed, continuing..."
         git lfs pull
@@ -144,28 +158,35 @@ jobs:
       uses: actions/cache/save@v4
       with:
         path: external/voyahchat-install
-        key: install-${{ steps.hash.outputs.install }}
+        key: install-v2-${{ steps.hash.outputs.install }}
 
     - name: Restore adaptive-layout cache
       id: cache-adaptive
       uses: actions/cache/restore@v4
       with:
         path: external/adaptive-layout
-        key: adaptive-${{ steps.hash.outputs.adaptive }}
+        key: adaptive-v2-${{ steps.hash.outputs.adaptive }}
+        restore-keys: |
+          adaptive-v2-
+          adaptive-
 
     - name: Clone adaptive-layout
       if: steps.cache-adaptive.outputs.cache-hit != 'true'
       run: |
         mkdir -p external
-        git clone https://github.com/vithar/adaptive-layout.git external/adaptive-layout
-        cd external/adaptive-layout && git pull && git lfs pull
+        if [ ! -d "external/adaptive-layout/.git" ]; then
+          git clone https://github.com/vithar/adaptive-layout.git external/adaptive-layout
+        fi
+        cd external/adaptive-layout
+        git pull || echo "Git pull failed"
+        git lfs pull
 
     - name: Save adaptive-layout cache
       if: steps.cache-adaptive.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
       with:
         path: external/adaptive-layout
-        key: adaptive-${{ steps.hash.outputs.adaptive }}
+        key: adaptive-v2-${{ steps.hash.outputs.adaptive }}
 
     # ============================================
     # PHASE 5: Quality Checks

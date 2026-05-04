@@ -1,10 +1,12 @@
 .assets
 .build
+.claude
 
 config/auth-ftp.yml
 config/auth-telegram.yml
 external
 site
+plans
 
 node_modules
 .vscode

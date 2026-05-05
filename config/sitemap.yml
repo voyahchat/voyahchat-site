@@ -4,6 +4,7 @@ sitemap:
   - Free [/free, free/index.md]
     - Модели [models, free/models.md]
     - АКБ 12V [12v, free/12v.md]
+      - Замена [replacement, free/12v_replacement.md]
     - Шины/диски [tyres, free/tyres.md]
     - Заряд/разряд [charge, free/charge.md]
     - Ключи [keys, free/keys.md]

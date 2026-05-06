@@ -14,9 +14,9 @@
     "build:nginx": "node lib/build/build-nginx.js",
     "build:templates": "node lib/build/build-templates.js",
     "build:html": "node lib/build/build-html.js",
-    "build:timestamps": "node lib/build/build-timestamps.js",
+    "build:manifest": "node lib/build/build-manifest.js",
     "build:compression": "node lib/build/build-compression.js",
-    "build": "npm --silent run clean && npm --silent run build:images && npm --silent run build:assets && npm --silent run build:parallel && npm --silent run build:sitemap && npm --silent run build:html && npm --silent run build:compression && npm --silent run build:timestamps",
+    "build": "npm --silent run clean && npm --silent run build:images && npm --silent run build:assets && npm --silent run build:parallel && npm --silent run build:sitemap && npm --silent run build:html && npm --silent run build:compression && npm --silent run build:manifest",
     "build:parallel": "concurrently --silent --kill-others-on-fail \"npm --silent run build:css\" \"npm --silent run build:js\" \"npm --silent run build:nginx\" \"npm --silent run build:templates\"",
     "serve": "npm --silent run stop && mkdir -p /tmp/nginx-logs && nginx -c $(pwd)/.build/nginx.conf",
     "start": "npm --silent run build && npm --silent run serve",
@@ -24,8 +24,6 @@
     "test": "npm --silent run build && node node_modules/.bin/ava --config=config/config-ava.js",
     "lint": "npx eslint lib config .github --fix --config config/config-eslint.mjs",
     "deploy": "node lib/deploy/deploy.js",
-    "deploy:clean": "node lib/deploy/deploy-clean.js",
-    "deploy-fix-timestamps": "node lib/deploy/deploy-fix-timestamps.js",
     "benchmark": "node lib/build/benchmark.js"
   },
   "dependencies": {

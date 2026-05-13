@@ -7,7 +7,6 @@
 /* block level (begin) */
 .article__paragraph,
 .article__list,
-.article__list-item,
 .article__thematic-break,
 .article__blockquote,
 .article__table
@@ -15,10 +14,19 @@
     margin: 0 0 1rem;
 }
 
+.article__list-item,
 .article__list .article__list,
 .article__list-item .article__paragraph:only-child
 {
     margin: 0;
+}
+
+.article__list-item {
+    margin: 0 0 0.5rem;
+}
+
+.article__list-item .article__list-item {
+    margin: 0 0 1rem;
 }
 
 .article__paragraph + .article__list

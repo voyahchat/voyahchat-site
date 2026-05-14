@@ -29,12 +29,12 @@ Features:
         {% if pageData %}
             {% set isCurrentPage = (helpers.cleanUrl(currentUrl) == helpers.cleanUrl(item)) %}
             {% if isCurrentPage %}
-                {% set itemClasses = '"menu__item menu__item_current"' %}
+                {% set itemClasses = 'menu__item menu__item_current' %}
             {% else %}
-                {% set itemClasses = '"menu__item"' %}
+                {% set itemClasses = 'menu__item' %}
             {% endif %}
 
-            <li class={{ itemClasses }}>
+            <li {{ helpers.attrClass(itemClasses) }}>
                 {% if isCurrentPage %}
                     <span class="menu__link menu__link_current">{{ pageData.name }}</span>
                 {% else %}
@@ -52,14 +52,14 @@ Features:
                 {% set shouldExpand = (isCurrentPage or isInSubsection) %}
 
                 {% if isCurrentPage %}
-                    {% set itemClasses = '"menu__item menu__item_current"' %}
+                    {% set itemClasses = 'menu__item menu__item_current' %}
                 {% elif isInSubsection %}
-                    {% set itemClasses = '"menu__item menu__item_expanded"' %}
+                    {% set itemClasses = 'menu__item menu__item_expanded' %}
                 {% else %}
-                    {% set itemClasses = '"menu__item"' %}
+                    {% set itemClasses = 'menu__item' %}
                 {% endif %}
 
-                <li class={{ itemClasses }}>
+                <li {{ helpers.attrClass(itemClasses) }}>
                     {% if isCurrentPage %}
                         <span class="menu__link menu__link_current">{{ pageData.name }}</span>
                     {% else %}

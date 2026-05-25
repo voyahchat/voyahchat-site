@@ -47,6 +47,20 @@ RewriteEngine On
 RewriteCond %{HTTP_HOST} voyahrussia.com
 RewriteRule (.*) https://voyahchat.ru/$1 [R=301,L]
 
+# Short URL redirects
+RewriteRule ^adb$ /common/adb [R=302,L]
+RewriteRule ^usb$ /common/usb-debugging [R=302,L]
+RewriteRule ^pwd$ /common/password [R=302,L]
+RewriteRule ^cable$ /common/cable [R=302,L]
+RewriteRule ^as$ /common/android-settings [R=302,L]
+
+RewriteRule ^autokit$ /common/software/autokit [R=302,L]
+RewriteRule ^rustore$ /common/software/rustore [R=302,L]
+RewriteRule ^vtf$ /common/tweaks/features [R=302,L]
+RewriteRule ^vti$ /common/tweaks/install [R=302,L]
+
+RewriteRule ^cm$ /common/cable#mac [NE,R=302,L]
+
 RewriteRule ^(.*)#(.*)$ /$1#$2 [NE,R=301,L]
 
 # Block direct access to .html files with 404

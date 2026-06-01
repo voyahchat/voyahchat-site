@@ -1,4 +1,6 @@
 .link-nav {
+    text-decoration: none;
+
     color: var(--color-nav);
 
     transition: color var(--transition);

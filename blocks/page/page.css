@@ -13,14 +13,17 @@
 .page__main {
     position: relative;
 
-    padding-bottom:  6rem;
+    padding-bottom:  8rem;
 
     background: #fff;
 }
 
-/* Hide aside in non-3-column modes (ads removed, aside reserved for future use) */
 .page__aside {
-    display: none;
+    height: 3rem;
+
+    padding: 0.5rem 1rem;
+
+    background: #052433;
 }
 
 .page__content {
@@ -31,7 +34,7 @@
 
 .page__foot {
     position: absolute;
-    bottom: 0; /* 50px */
+    bottom: 2.5rem;
     left: 50%;
 
     transform: translateX(-50%);
@@ -39,7 +42,7 @@
 
 @media (min-width: 1000px) {
     .page__main {
-        padding-bottom: 6rem;
+        padding-bottom: 10rem;
     }
 
     .page__menu {
@@ -47,8 +50,16 @@
         background: none;
     }
 
+    .page__aside {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+
+        height: 4rem;
+    }
+
     .page:not(.page-index) .page__foot {
-        bottom: 0; /* 90px */
+        bottom: 4rem;
     }
 }
 
@@ -59,9 +70,15 @@
 
     .page__aside {
         display: block;
+
+        padding: 0 2rem;
+
+        background: none;
     }
 
     .page:not(.page-index) .page__foot {
-        bottom: 1rem;
+        bottom: 0;
+
+        height: 5em;
     }
 }

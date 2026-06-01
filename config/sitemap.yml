@@ -111,4 +111,10 @@ sitemap:
   - Услуги чата [/help, help/index.md]
     - Приложения [software, help/software.md]
     - Прошивка [firmware, help/firmware.md]
+    - Впайка SIM-карты [sim, help/sim.md]
+    - Мастер-аккаунт [ma, help/ma.md]
 
+  - Сервисы [/services, services/index.md]
+    - Москва [moscow, services/moscow.md]
+    - Санкт-Петербург [piter, services/piter.md]
+    - Краснодар [krasnodar, services/krasnodar.md]

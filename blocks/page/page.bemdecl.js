@@ -6,6 +6,7 @@ module.exports = [
   'header',
   'header__toggle',
   'menu',
+  'section',
 
   'article',
   'app-icon',

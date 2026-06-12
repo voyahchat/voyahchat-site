@@ -2,3 +2,10 @@
     --color-nav: rgba(255, 255, 255, 0.8);
     --color-nav-hover: #fff;
 }
+
+html,
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}

@@ -2,6 +2,7 @@
 - Use English for code, comments and documentation
 - Keep docs brief and technical (NO EMOJI)
 - Use temporary files for complex script validation, not `node -c`
+- All `require()` calls must be at the top of the file, not in the middle of functions
 
 # Backward Compatibility & Build Artifacts
 - DO NOT maintain backward compatibility - breaking changes are acceptable

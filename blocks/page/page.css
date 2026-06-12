@@ -26,6 +26,14 @@
     background: #052433;
 }
 
+@media (max-width: 399px) {
+    .page__aside {
+        height: 2rem;
+
+        padding: 0 1rem;
+    }
+}
+
 .page__content {
     padding: 15px 0;
 
@@ -64,8 +72,24 @@
 }
 
 @media (min-width: 80rem) {
+    .page {
+        grid-template-rows: minmax(var(--header-size), auto) auto;
+    }
+
     .page__main {
         padding-bottom: 7rem;
+    }
+
+    .page__menu,
+    .page__main {
+        min-height: calc(21rem + 444px);
+    }
+
+    .page__side {
+        position: sticky;
+        top: 0;
+
+        align-self: start;
     }
 
     .page__aside {

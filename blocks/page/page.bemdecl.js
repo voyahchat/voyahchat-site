@@ -11,6 +11,7 @@ module.exports = [
   'article',
   'app-icon',
   'app-screenshot',
+  'gallery',
   'table',
   'text-with-icon',
   'video',

@@ -114,7 +114,6 @@ sitemap:
     - Впайка SIM-карты [sim, help/sim.md]
     - Мастер-аккаунт [ma, help/ma.md]
 
-  - Сервисы [/services, services/index.md]
-    - Москва [moscow, services/moscow.md]
-    - Санкт-Петербург [piter, services/piter.md]
-    - Краснодар [krasnodar, services/krasnodar.md]
+  - Партнёры [/partners, partners/index.md]
+    - Lovto — оклейка авто [lovto, partners/lovto.md]
+

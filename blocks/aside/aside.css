@@ -95,7 +95,10 @@
         content: "";
     }
 
-    .aside__video .video__iframe {
+    .aside__video-player {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
         pointer-events: none;
     }
 

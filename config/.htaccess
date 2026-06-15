@@ -358,7 +358,7 @@ RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)$ $1_$2_$3_$4_$5.html [L,E=I
 </FilesMatch>
 
 # Hashed static files (CSS, JS, images) - immutable
-<FilesMatch "\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp)(\.zst|\.br|\.gz)?$">
+<FilesMatch "\.(css|js|svg|jpg|jpeg|png|gif|ico|avif|webp|mp4)(\.zst|\.br|\.gz)?$">
     Header always set Cache-Control "public,immutable"
 </FilesMatch>
 

@@ -93,32 +93,32 @@ class Lightbox {
 
     createOverlay() {
         this.overlay = document.createElement('div');
-        this.overlay.className = 'gallery__lightbox';
+        this.overlay.className = 'markdown-gallery__lightbox';
 
         this.img = document.createElement('img');
-        this.img.className = 'gallery__lightbox-img';
+        this.img.className = 'markdown-gallery__lightbox-img';
 
         const content = document.createElement('div');
-        content.className = 'gallery__lightbox-content';
+        content.className = 'markdown-gallery__lightbox-content';
         content.appendChild(this.img);
 
         this.counter = document.createElement('div');
-        this.counter.className = 'gallery__lightbox-counter';
+        this.counter.className = 'markdown-gallery__lightbox-counter';
 
         const close = document.createElement('button');
-        close.className = 'gallery__lightbox-close';
+        close.className = 'markdown-gallery__lightbox-close';
         close.setAttribute('aria-label', 'Close');
         close.innerHTML = '&times;';
         close.addEventListener('click', () => this.close());
 
         const prev = document.createElement('button');
-        prev.className = 'gallery__lightbox-prev';
+        prev.className = 'markdown-gallery__lightbox-prev';
         prev.setAttribute('aria-label', 'Previous');
         prev.innerHTML = '&lsaquo;';
         prev.addEventListener('click', () => this.prev());
 
         const next = document.createElement('button');
-        next.className = 'gallery__lightbox-next';
+        next.className = 'markdown-gallery__lightbox-next';
         next.setAttribute('aria-label', 'Next');
         next.innerHTML = '&rsaquo;';
         next.addEventListener('click', () => this.next());

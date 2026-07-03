@@ -3,6 +3,7 @@ module.exports = [
   'root-index',
   'page',
   'page-index',
+  'metrika',
   'link-nav',
   'nav-index',
   'footer',

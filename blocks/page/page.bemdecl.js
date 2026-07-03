@@ -1,6 +1,7 @@
 module.exports = [
   'root',
   'page',
+  'metrika',
   'link-nav',
   'logo',
   'header',

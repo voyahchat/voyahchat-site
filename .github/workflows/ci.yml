@@ -68,7 +68,6 @@ jobs:
         echo "content=$(fetch_hash https://github.com/voyahchat/voyahchat-content.git)" >> $GITHUB_OUTPUT
         echo "docs=$(fetch_hash https://github.com/voyahchat/voyahchat-docs.git)" >> $GITHUB_OUTPUT
         echo "install=$(fetch_hash https://github.com/voyahchat/voyahchat-install.git)" >> $GITHUB_OUTPUT
-        echo "adaptive=$(fetch_hash https://github.com/vithar/adaptive-layout.git)" >> $GITHUB_OUTPUT
 
     # ============================================
     # PHASE 4: External Repositories with Cache
@@ -166,34 +165,6 @@ jobs:
         path: external/voyahchat-install
         key: install-v2-${{ steps.hash.outputs.install }}
 
-    - name: Restore adaptive-layout cache
-      id: cache-adaptive
-      uses: actions/cache/restore@v4
-      with:
-        path: external/adaptive-layout
-        key: adaptive-v2-${{ steps.hash.outputs.adaptive }}
-        restore-keys: |
-          adaptive-v2-
-          adaptive-
-
-    - name: Clone adaptive-layout
-      if: steps.cache-adaptive.outputs.cache-hit != 'true'
-      run: |
-        mkdir -p external
-        if [ ! -d "external/adaptive-layout/.git" ]; then
-          git clone https://github.com/vithar/adaptive-layout.git external/adaptive-layout
-        fi
-        cd external/adaptive-layout
-        git pull || echo "Git pull failed"
-        git lfs pull
-
-    - name: Save adaptive-layout cache
-      if: steps.cache-adaptive.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
-      with:
-        path: external/adaptive-layout
-        key: adaptive-v2-${{ steps.hash.outputs.adaptive }}
-
     # ============================================
     # PHASE 5: Quality Checks
     # ============================================
@@ -239,7 +210,6 @@ jobs:
         echo "| voyahchat-content | ${{ steps.cache-content.outputs.cache-hit }} |" >> $GITHUB_STEP_SUMMARY
         echo "| voyahchat-docs | ${{ steps.cache-docs.outputs.cache-hit }} |" >> $GITHUB_STEP_SUMMARY
         echo "| voyahchat-install | ${{ steps.cache-install.outputs.cache-hit }} |" >> $GITHUB_STEP_SUMMARY
-        echo "| adaptive-layout | ${{ steps.cache-adaptive.outputs.cache-hit }} |" >> $GITHUB_STEP_SUMMARY
 
     - name: Build metrics
       if: always()

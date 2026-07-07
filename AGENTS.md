@@ -44,7 +44,6 @@
 
 # Project Structure
 - Content/assets: `external/voyahchat-{content,docs,install}`
-- External blocks: `external/adaptive-layout/blocks/`
 - Local blocks: `blocks/`
 - Configuration: `config/`
 - Library: `lib/`

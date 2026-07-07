@@ -1,5 +1,5 @@
 <div class="aside page__aside">
-    <section class="section">
+    <section class="section aside__services">
         <a class="section__head section__link link-nav" href="/help"
             >Услуги</a>
 
@@ -19,14 +19,27 @@
         </ul>
     </section>
 
-    <section class="section">
+    <section class="section aside__partners">
         <a class="section__head section__link link-nav" href="/partners"
             >Партнёры</a>
 
-        <div class="aside__video video">
-            <a class="aside__video-link" href="/partners/lovto"
+        <div class="partner-lovto">
+            <a class="partner-lovto__link" href="/partners/lovto"
                 aria-label="Партнёр Lovto"></a>
-            <video class="aside__video-player" src="{{ page.videoLovto }}" muted autoplay loop playsinline></video>
+            <video class="partner-lovto__player" src="{{ page.videoLovto }}" muted autoplay playsinline></video>
+            <div class="partner-lovto__overlay">
+                <div class="partner-lovto__text partner-lovto__text_mobile">
+                    <strong class="partner-lovto__title">Оклейка VOYAH FREE в Москве и СПб</strong>
+                </div>
+                <div class="partner-lovto__text partner-lovto__text_tablet">
+                    <strong class="partner-lovto__title">Оклейка VOYAH FREE в Москве и СПб</strong>
+                    <span class="partner-lovto__sub">Антигравийная, глянцевая, матовая, сатиновая плёнки. Более 150 цветов.</span>
+                </div>
+                <div class="partner-lovto__text partner-lovto__text_desktop">
+                    <strong class="partner-lovto__title">Оклейка<br>Voyah Free<br>в Москве и СПб</strong>
+                    <div class="partner-lovto__sub">Антигравийная, глянцевая, матовая, сатиновая плёнки.<span class="partner-lovto__colors">Более 150 цветов</span></div>
+                </div>
+            </div>
         </div>
     </section>
 </div>

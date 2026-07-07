@@ -1,0 +1,164 @@
+/**
+ * Lovto partner banner.
+ *
+ * Desktop (>=80rem): a 250x444 video box in the sidebar; after the video ends,
+ * a static image+text overlay fades in and stays.
+ * Phone/tablet (<80rem): a fixed bottom strip with a right-aligned background
+ * image (height never changes), solid color on the left, text on top.
+ */
+
+.partner-lovto {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.partner-lovto__link {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+
+/* phone + tablet: static banner only, hide video player */
+.partner-lovto__player {
+    display: none;
+}
+
+.partner-lovto__text {
+    display: none;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.partner-lovto__title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.partner-lovto__sub {
+    font-size: 0.7rem;
+    line-height: 1.1;
+    opacity: 0.9;
+}
+
+/* phone/tablet: clamp each text line to one row so long copy does not blow up the strip */
+.partner-lovto__text_mobile .partner-lovto__title,
+.partner-lovto__text_mobile .partner-lovto__sub,
+.partner-lovto__text_tablet .partner-lovto__title,
+.partner-lovto__text_tablet .partner-lovto__sub {
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.partner-lovto__text_mobile {
+    display: flex;
+}
+
+/* phone (<400): banner background with text on top, fixed 32px height */
+.partner-lovto__overlay {
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 0.05rem;
+    height: 32px;
+    padding: 0 88px 0 1rem;
+    overflow: hidden;
+    text-align: left;
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.6);
+    background: #052433 url(lovto-banner-tablet.jpg) no-repeat right center / auto 100%;
+    pointer-events: none;
+}
+
+/* narrow phone (<400): bold title, font-size scales down with viewport */
+@media (max-width: 399px) {
+    .partner-lovto__title {
+        font-size: clamp(0.7rem, 3.5vw, 1rem);
+        font-weight: 700;
+    }
+}
+
+/* tablet (>=400): 48px banner, tablet text variant */
+@media (min-width: 400px) {
+    .partner-lovto__text_mobile {
+        display: none;
+    }
+
+    .partner-lovto__text_tablet {
+        display: flex;
+    }
+
+    .partner-lovto__overlay {
+        height: 48px;
+        padding-right: 1rem;
+    }
+}
+
+/* desktop (>=80rem): video plays in the sidebar, overlay after the video ends */
+@media (min-width: 80rem) {
+    .partner-lovto {
+        position: relative;
+        width: 250px;
+        height: 444px;
+        display: block;
+        margin: 0;
+    }
+
+    .partner-lovto__player {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+    }
+
+    .partner-lovto__text_tablet {
+        display: none;
+    }
+
+    .partner-lovto__text_desktop {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+    }
+
+    .partner-lovto__title {
+        font-size: 110%;
+    }
+
+    .partner-lovto__sub {
+        font-size: 1rem;
+    }
+
+    /* "More than 150 colors" on its own line with half a line-height gap */
+    .partner-lovto__colors {
+        display: block;
+
+        margin-top: 0.55em;
+    }
+
+    .partner-lovto__overlay {
+        position: absolute;
+        inset: 0;
+        height: auto;
+        align-items: stretch;
+        text-align: center;
+        padding: 1rem 1rem 1.5rem;
+        background: url(lovto-banner-desktop.jpg) no-repeat center / cover;
+        opacity: 0;
+        transition: opacity 0.6s ease;
+    }
+
+    .partner-lovto_state_ended .partner-lovto__overlay {
+        opacity: 1;
+    }
+}

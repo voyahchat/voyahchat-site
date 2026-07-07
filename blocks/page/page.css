@@ -1,36 +1,95 @@
 .page {
     position: relative;
 
+    font: clamp(1rem, 0.5rem + 0.9vw, 1.3rem) Arial, sans-serif;
+
     background: linear-gradient(hsl(200, 82%, 11%) 0%, hsl(200, 82%, 25%) 100%);
 }
 
+.page__head {
+    grid-column: 1/4;
+}
+
+.page__menu-switcher {
+    display: none;
+}
+
+.page__menu-switcher:checked ~ .page__menu {
+    right: 0;
+
+    width: 100vw;
+}
+
+.page__menu-switcher:checked ~ .page__main {
+    position: static;
+
+    overflow: hidden;
+}
+
+.page__menu-switcher:checked ~ .page__main .page__foot {
+    display: none;
+}
+
+.page__menu-burger {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    justify-content: center;
+    align-self: stretch;
+
+    width: var(--header-size);
+
+    cursor: pointer;
+}
+
 .page__menu {
+    position: fixed;
+    top: 0;
+    right: -100vw;
+
     z-index: 1;
+    overflow: hidden;
+
+    width: 100vw;
+    height: 100vh;
 
     background: #052433;
+
+    transition: right var(--transition), width var(--transition);
 }
 
 .page__main {
     position: relative;
 
-    padding-bottom:  8rem;
+    overflow: auto;
+    box-sizing: border-box;
+
+    min-height: calc(100vh - var(--header-size));
+    padding: max(6px, min(1vw, 10px)) clamp(6px, 3vw, 30px) calc(48px + 3rem);
 
     background: #fff;
 }
 
+/* phone + tablet (<1280px): banner fixed at the bottom, does not scroll with content */
 .page__aside {
-    height: 3rem;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
 
-    padding: 0.5rem 1rem;
+    height: 48px;
+
+    padding: 0;
 
     background: #052433;
 }
 
 @media (max-width: 399px) {
     .page__aside {
-        height: 2rem;
-
-        padding: 0 1rem;
+        height: 32px;
     }
 }
 
@@ -42,37 +101,63 @@
 
 .page__foot {
     position: absolute;
-    bottom: 2.5rem;
+    bottom: 0.5rem;
     left: 50%;
 
     transform: translateX(-50%);
 }
 
+@media (min-width: 400px) {
+    .page__foot {
+        bottom: 1rem;
+    }
+}
+
 @media (min-width: 1000px) {
-    .page__main {
-        padding-bottom: 10rem;
+    .page {
+        display: grid;
+        grid-template-columns: minmax(min(10em, 272px), 20%) minmax(min(728px, 80%), 1fr);
+        grid-template-rows: minmax(var(--header-size), auto) 1fr;
+    }
+
+    .page__menu,
+    .page__menu-switcher:checked ~ .page__menu {
+        position: static;
+        grid-column: 1;
+
+        width: auto;
+        height: auto;
+
+        background: none;
+    }
+
+    .page__menu-burger {
+        display: none;
     }
 
     .page__menu {
         mask-image: linear-gradient(to bottom, #000 90%, rgba(0, 0, 0, 0));
-        background: none;
     }
 
-    .page__aside {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
+    .page__main {
+        grid-column: 2;
 
-        height: 4rem;
+        padding-bottom: calc(48px + 4rem);
+    }
+
+    /* tablet: fixed banner sits under the content column, not under the menu */
+    .page__aside {
+        left: clamp(10em, 272px, 20%);
     }
 
     .page:not(.page-index) .page__foot {
-        bottom: 4rem;
+        bottom: 1.5rem;
     }
 }
 
 @media (min-width: 80rem) {
     .page {
+        grid-template-columns: minmax(10rem, 20%) minmax(min(40rem, 40%), 1fr) minmax(320px, 20%);
         grid-template-rows: minmax(var(--header-size), auto) auto;
     }
 
@@ -89,11 +174,17 @@
         position: sticky;
         top: 0;
 
+        grid-column: 3;
         align-self: start;
     }
 
+    /* desktop: aside becomes a static sidebar column with the video */
     .page__aside {
+        position: static;
+
         display: block;
+
+        height: auto;
 
         padding: 0 2rem;
 
@@ -105,4 +196,14 @@
 
         height: 5em;
     }
+}
+
+.page_state_menu {
+    /* disable page scroll on small screens, scroll the menu only */
+    overflow: hidden;
+}
+
+.page_state_menu .page__menu {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }

@@ -1,6 +1,9 @@
 :root {
     --color-nav: rgba(255, 255, 255, 0.8);
     --color-nav-hover: #fff;
+
+    --transition: 0.3s;
+    --header-size: clamp(40px, 10vw, 90px);
 }
 
 html,

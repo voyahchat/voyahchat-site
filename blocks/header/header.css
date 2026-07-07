@@ -1,3 +1,44 @@
+.header {
+    position: relative;
+
+    display: flex;
+    min-height: var(--header-size);
+
+    font-size: clamp(1rem, 0.5rem + 1.4vw, 1.6rem);
+}
+
 .header__logo {
     /* width: max(40px, min(10vw, 90px)); */
+}
+
+.header__title {
+    align-self: center;
+    flex-grow: 1;
+
+    padding: 0;
+
+    hyphens: auto;
+}
+
+.header__title-item {
+    display: inline-block;
+
+    margin: 0.1rem 0;
+    padding: 0;
+
+    color: var(--color-nav);
+}
+
+.header__title-item:not(.header__title-item_current)::after {
+    margin: 0 0.5rem 0 0.7rem;
+
+    content: "/";
+}
+
+.header__title-link {
+    color: inherit;
+}
+
+.header__title-link[href]:hover {
+    color: var(--color-nav-hover);
 }

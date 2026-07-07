@@ -134,7 +134,6 @@ Core configuration files:
 │   ├── levels.json              # BEM levels configuration
 │   └── sitemap.yml              # Site structure and navigation definition
 ├── external/                    # External repositories (cloned during setup)
-│   ├── adaptive-layout/         # Layout system blocks
 │   ├── voyahchat-content/       # Main documentation content
 │   ├── voyahchat-docs/          # Additional documentation
 │   └── voyahchat-install/       # Installation files and assets

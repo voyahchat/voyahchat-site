@@ -20,5 +20,6 @@ module.exports = [
   'video',
 
   'aside',
+  'partner-lovto',
   'footer',
 ];

@@ -3,24 +3,12 @@
     --color-nav-hover: rgba(0, 0, 0, 1); */
 }
 
+/* services short/long labels (long by default, short on narrow screens) */
 .aside__short {
     display: none;
 }
 
-@media (max-width: 399px) {
-    .aside__short {
-        display: inline;
-    }
-
-    .aside__long {
-        display: none;
-    }
-
-    .aside .section__body {
-        justify-content: space-between;
-    }
-}
-
+/* section layout inside aside (mobile default) */
 .aside .section {
     --local-root-height: 100%;
     --local-root-bottom: 1rem;
@@ -38,22 +26,46 @@
     --local-item-bottom: 0;
 }
 
-@media (max-width: 399px) {
-    .aside .section {
-        --local-root-bottom: 0;
-
-        --local-item-right: 0;
-    }
-}
-
 .aside .section__head::after {
     content: ": ";
 }
 
+/* hide the second section by default on strips; .aside__partners re-enables it below */
 .aside .section + .section {
     --local-root: none;
 }
 
+/*
+ * Partner section: visible on phone/tablet (the partner-lovto banner replaces
+ * services), its heading hidden there and no extra bottom padding.
+ */
+.aside .section.aside__partners {
+    --local-root: block;
+    --local-head: none;
+    --local-root-bottom: 0;
+}
+
+/* phone + tablet: hide the services section, the partner banner replaces it */
+.aside__services {
+    display: none;
+}
+
+/* narrow phone (<400): short labels, services row spread */
+@media (max-width: 399px) {
+    .aside__short {
+        display: inline;
+    }
+
+    .aside__long {
+        display: none;
+    }
+
+    .aside .section__body {
+        justify-content: space-between;
+    }
+}
+
+/* wide (>=1000): section layout switches to inline */
 @media (min-width: 1000px) {
     .aside .section {
         --local-root-height: auto;
@@ -71,12 +83,8 @@
     }
 }
 
+/* desktop (>=80rem): show services section and the Partners heading */
 @media (min-width: 80rem) {
-    .aside {
-        /* --color-nav: inherit;
-        --color-nav-hover: inherit; */
-    }
-
     .aside .section {
         --local-root-bottom: 2rem;
 
@@ -95,24 +103,12 @@
         content: "";
     }
 
-    .aside__video-player {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        pointer-events: none;
+    /* show the Partners heading again on desktop */
+    .aside .section.aside__partners {
+        --local-head: block;
     }
 
-    .aside__video {
-        position: relative;
-        width: 250px;
-        height: 444px;
+    .aside__services {
         display: block;
-        margin: 0;
-    }
-
-    .aside__video-link {
-        position: absolute;
-        inset: 0;
-        z-index: 1;
     }
 }

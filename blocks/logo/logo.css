@@ -1,4 +1,7 @@
 .logo {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
     align-self: center;
 
     width: max(40px, min(10vw, 90px));

@@ -1,0 +1,80 @@
+.index-cars {
+    padding: 2rem 1.5rem 3rem;
+
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.index-cars__group {
+    margin-bottom: 2.5rem;
+}
+
+.index-cars__group:last-child {
+    margin-bottom: 0;
+}
+
+.index-cars__heading {
+    margin: 0 0 1rem;
+
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.index-cars__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+.index-cars__card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 1.25rem 1rem;
+
+    font-size: 1.3rem;
+    font-weight: 300;
+    text-decoration: none;
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+
+    transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+.index-cars__card:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.index-cars__platforms {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+@media (min-width: 768px) {
+    .index-cars {
+        padding: 3rem 3rem 4rem;
+    }
+
+    .index-cars__list {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+
+    .index-cars__platforms {
+        flex-direction: row;
+        gap: 2rem;
+    }
+
+    .index-cars__platforms > .index-cars__group {
+        flex: 1;
+    }
+}

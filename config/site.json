@@ -1,0 +1,9 @@
+{
+    "baseUrl": "https://voyahchat.ru",
+    "rootTitle": "VoyahChat",
+    "contentRepo": "voyahchat-content",
+    "assetRepos": [],
+    "githubRawBase": null,
+    "bundles": ["page", "page-index"],
+    "logPrefix": "voyahchat"
+}

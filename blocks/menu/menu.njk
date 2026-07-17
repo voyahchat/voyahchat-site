@@ -43,38 +43,60 @@ Features:
             </li>
         {% endif %}
     {% else %}
-        {# Object with children #}
+        {# Object: either a parent with children, or a cross-section leaf
+           carrying its own menu label as a string value. #}
         {% for parentUrl, children in item %}
-            {% set pageData = sitemap.pages[parentUrl] %}
-            {% if pageData %}
-                {% set isCurrentPage = (helpers.cleanUrl(currentUrl) == helpers.cleanUrl(parentUrl)) %}
-                {% set isInSubsection = (helpers.cleanUrl(currentUrl).startsWith(helpers.cleanUrl(parentUrl) + '/')) %}
-                {% set shouldExpand = (isCurrentPage or isInSubsection) %}
-
-                {% if isCurrentPage %}
-                    {% set itemClasses = 'menu__item menu__item_current' %}
-                {% elif isInSubsection %}
-                    {% set itemClasses = 'menu__item menu__item_expanded' %}
-                {% else %}
-                    {% set itemClasses = 'menu__item' %}
-                {% endif %}
-
-                <li {{ helpers.attrClass(itemClasses) }}>
+            {# Cross-section labeled leaf: value is a string label, not an array #}
+            {% if children is string %}
+                {% set pageData = sitemap.pages[parentUrl] %}
+                {% if pageData %}
+                    {% set isCurrentPage = (helpers.cleanUrl(currentUrl) == helpers.cleanUrl(parentUrl)) %}
                     {% if isCurrentPage %}
-                        <span class="menu__link menu__link_current">{{ pageData.name }}</span>
+                        {% set itemClasses = 'menu__item menu__item_current' %}
                     {% else %}
-                        <a class="menu__link link link-nav" href="{{ helpers.cleanUrl(parentUrl) }}">{{ pageData.name }}</a>
+                        {% set itemClasses = 'menu__item' %}
                     {% endif %}
 
-                    {# Show children if we're in this subsection #}
-                    {% if shouldExpand and children and children.length > 0 %}
-                        <ul class="menu__submenu">
-                            {% for child in children %}
-                                {{ renderMenuItem(child, currentUrl, level + 1) }}
-                            {% endfor %}
-                        </ul>
+                    <li {{ helpers.attrClass(itemClasses) }}>
+                        {% if isCurrentPage %}
+                            <span class="menu__link menu__link_current">{{ children }}</span>
+                        {% else %}
+                            <a class="menu__link link-nav" href="{{ helpers.cleanUrl(parentUrl) }}">{{ children }}</a>
+                        {% endif %}
+                    </li>
+                {% endif %}
+            {% else %}
+                {% set pageData = sitemap.pages[parentUrl] %}
+                {% if pageData %}
+                    {% set isCurrentPage = (helpers.cleanUrl(currentUrl) == helpers.cleanUrl(parentUrl)) %}
+                    {% set isInSubsection = (helpers.cleanUrl(currentUrl).startsWith(helpers.cleanUrl(parentUrl) + '/')) %}
+                    {% set shouldExpand = (isCurrentPage or isInSubsection) %}
+
+                    {% if isCurrentPage %}
+                        {% set itemClasses = 'menu__item menu__item_current' %}
+                    {% elif isInSubsection %}
+                        {% set itemClasses = 'menu__item menu__item_expanded' %}
+                    {% else %}
+                        {% set itemClasses = 'menu__item' %}
                     {% endif %}
-                </li>
+
+                    <li {{ helpers.attrClass(itemClasses) }}>
+                        {% if isCurrentPage %}
+                            <span class="menu__link menu__link_current">{{ pageData.name }}</span>
+                        {% else %}
+                            <a class="menu__link link link-nav" href="{{ helpers.cleanUrl(parentUrl) }}">{{ pageData.name }}</a>
+                        {% endif %}
+
+                        {# Show children if we're in this subsection #}
+                        {% if shouldExpand and children and children.length > 0 %}
+                            <ul class="menu__submenu">
+                                {% for child in children %}
+                                    {{ renderMenuItem(child, currentUrl, level + 1) }}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endif %}
             {% endif %}
         {% endfor %}
     {% endif %}

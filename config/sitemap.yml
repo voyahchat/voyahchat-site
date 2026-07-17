@@ -113,7 +113,7 @@ sitemap:
     - Прошивка [firmware, help/firmware.md]
     - Впайка SIM-карты [sim, help/sim.md]
     - Мастер-аккаунт [ma, help/ma.md]
-
+    - Cтрахование с кэшбэком [/partners/goodbro, partners/goodbro.md, { navLabel: 'Страхование с кэшбэком' }]
   - Партнёры [/partners, partners/index.md]
     - Lovto — оклейка авто [lovto, partners/lovto.md]
     - Goodbro — страхование с кэшбэком [goodbro, partners/goodbro.md]

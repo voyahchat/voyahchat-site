@@ -1,0 +1,90 @@
+.index-hero {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 3rem 1.5rem 4rem;
+
+    text-align: center;
+}
+
+.index-hero::before {
+    position: absolute;
+    z-index: 0;
+    top: 50%;
+    left: 50%;
+
+    width: 280px;
+    height: 400px;
+
+    content: "";
+    transform: translate(-50%, -50%);
+
+    opacity: 0.07;
+    background: #fff;
+    mask: url('../logo/logo.svg') no-repeat center / contain;
+}
+
+.index-hero__title {
+    position: relative;
+    z-index: 1;
+
+    margin: 0 0 0.75rem;
+
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+
+    color: #fff;
+}
+
+.index-hero__subtitle {
+    position: relative;
+    z-index: 1;
+
+    margin: 0 0 1.5rem;
+
+    max-width: 600px;
+
+    font-size: 1.2rem;
+    font-weight: 300;
+    line-height: 1.5;
+
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.index-hero__text {
+    position: relative;
+    z-index: 1;
+
+    margin: 0;
+
+    max-width: 640px;
+
+    font-size: 1rem;
+    font-weight: 300;
+    line-height: 1.7;
+
+    color: rgba(255, 255, 255, 0.7);
+}
+
+@media (min-width: 768px) {
+    .index-hero {
+        padding: 5rem 3rem 6rem;
+    }
+
+    .index-hero::before {
+        width: 400px;
+        height: 560px;
+    }
+
+    .index-hero__title {
+        font-size: 3.5rem;
+    }
+
+    .index-hero__subtitle {
+        font-size: 1.4rem;
+    }
+}

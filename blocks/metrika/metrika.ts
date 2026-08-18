@@ -10,7 +10,7 @@ import type { BemNode } from 'nuckty';
 
 /** The metrika `<script>` body — 1:1 with metrika.njk. */
 const METRIKA_SCRIPT =
-    "(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','//mc.yandex.ru/metrika/tag.js','ym');ym(108333304,'init',{referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});ym(110358021,'init',{referrer:document.referrer,url:location.href});";
+    "(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','//mc.yandex.ru/metrika/tag.js','ym');ym(108333304,'init',{referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});";
 
 /** Build the metrika node tree (script + noscript). */
 export function metrikaNodes(): BemNode[] {
@@ -22,9 +22,7 @@ export function metrikaNodes(): BemNode[] {
             tag: 'noscript',
             block: 'metrika',
             content: [
-                { tag: 'img', bem: false, attrs: { src: '//mc.yandex.ru/watch/108333304', alt: '' } },
-                { tag: 'img', bem: false, attrs: { src: '//mc.yandex.ru/watch/110358021', alt: '' } },
-            ],
+                { tag: 'img', bem: false, attrs: { src: '//mc.yandex.ru/watch/108333304', alt: '' } },            ],
         },
     ];
 }

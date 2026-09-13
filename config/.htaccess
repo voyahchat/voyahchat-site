@@ -30,7 +30,8 @@ Redirect 301 /common/software/yandex-navi-nxp/voyahchat-yandex-navi-nxp-mac.zip 
 Redirect 301 /common/tweaks/tweaks_install-nxp.zip /tweaks_install-nxp.zip
 
 # Directory redirects come after file redirects
-Redirect 301 /common/tweaks/install-mac /common/tweaks/install
+RedirectMatch 302 ^/common/tweaks/install$ https://voyahtweaks.ru/instruction
+Redirect 302 /common/tweaks/install-mac https://voyahtweaks.ru/instruction
 Redirect 301 /common/tweaks/install-nxp-mac /common/tweaks/install-nxp
 Redirect 301 /common/software/autokit-mac /common/software/autokit
 Redirect 301 /common/software/apkpure-mac /common/software/apkpure
@@ -57,7 +58,7 @@ RewriteRule ^as$ /common/android-settings [R=302,L]
 RewriteRule ^autokit$ /common/software/autokit [R=302,L]
 RewriteRule ^rustore$ /common/software/rustore [R=302,L]
 RewriteRule ^vtf$ /common/tweaks/features [R=302,L]
-RewriteRule ^vti$ /common/tweaks/install [R=302,L]
+RewriteRule ^vti$ https://voyahtweaks.ru/instruction [R=302,L]
 
 RewriteRule ^cm$ /common/cable#mac [NE,R=302,L]
 

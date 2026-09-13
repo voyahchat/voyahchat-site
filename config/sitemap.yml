@@ -69,7 +69,6 @@ sitemap:
       - Настройки [settings, common/tweaks_settings.md]
       - Голосовые команды [voice, common/tweaks_voice.md]
       - Изменения по версиям [changelog, common/tweaks_changelog.md]
-      - Установка [install, common/tweaks_install.md]
       - Установка NXP [install-nxp, common/tweaks_install-nxp.md]
     - CunBA [cunba, common/cunba.md]
     - Приложения [software, common/software.md]
